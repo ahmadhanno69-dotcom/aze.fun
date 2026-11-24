@@ -1,0 +1,4292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AZE.fun — Interactive Web Toys, Experiments &amp; Mini-Games</title>
+  <meta name="description" content="Minimalist monochrome interactive web toys, experiments, and 12 original mini-games in a single self-contained arcade hub." />
+  <meta property="og:title" content="AZE.fun — Interactive Web Toys, Experiments & Mini-Games" />
+  <meta property="og:description" content="12 crisp black-and-white interactive toys & mini-games: Element Alchemy, Spend a Trillion, Impossible Password, Perfect Circle, Gravity Sand, Aim & Memory, and more." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <style>
+    :root {
+      --bg-canvas: #ffffff;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f3f3f3;
+      --bg-hover: #eaeaea;
+      --ink: #0a0a0a;
+      --ink-muted: #525252;
+      --border: #0a0a0a;
+      --border-soft: #d4d4d4;
+      --btn-bg: #0a0a0a;
+      --btn-ink: #ffffff;
+      --shadow-hard: 4px 4px 0px #0a0a0a;
+      --shadow-sm: 2px 2px 0px #0a0a0a;
+      --pass-bg: #f0fdf4;
+      --pass-ink: #0a0a0a;
+      --fail-bg: #fef2f2;
+      --fail-ink: #0a0a0a;
+      --font-display: 'Avenir Next', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-body: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 8px;
+    }
+
+    html.inverted {
+      --bg-canvas: #0a0a0a;
+      --bg-surface: #121212;
+      --bg-subtle: #1c1c1c;
+      --bg-hover: #262626;
+      --ink: #ffffff;
+      --ink-muted: #a3a3a3;
+      --border: #ffffff;
+      --border-soft: #333333;
+      --btn-bg: #ffffff;
+      --btn-ink: #0a0a0a;
+      --shadow-hard: 4px 4px 0px #ffffff;
+      --shadow-sm: 2px 2px 0px #ffffff;
+      --pass-bg: #14261a;
+      --pass-ink: #ffffff;
+      --fail-bg: #2a1515;
+      --fail-ink: #ffffff;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-canvas);
+      color: var(--ink);
+      font-family: var(--font-body);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100%;
+      overflow-x: hidden;
+      transition: background-color 160ms ease, color 160ms ease;
+    }
+
+    button, input, select {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+      outline: 3px solid var(--ink);
+      outline-offset: 2px;
+    }
+
+    .tabular {
+      font-variant-numeric: tabular-nums;
+      font-family: var(--font-mono);
+    }
+
+    /* Sticky Top Header */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      height: 56px;
+      background: var(--bg-canvas);
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      gap: 10px;
+    }
+
+    .brand-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1.25rem;
+      letter-spacing: -0.04em;
+      color: var(--ink);
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-height: 40px;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: var(--btn-bg);
+      color: var(--btn-ink);
+      border: 2px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      font-weight: 900;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 38px;
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      border: 2px solid var(--border);
+      transition: transform 130ms cubic-bezier(0.16, 1, 0.3, 1), background-color 130ms ease, box-shadow 130ms ease;
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: none !important;
+    }
+
+    .btn-ghost {
+      background: var(--bg-surface);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-subtle);
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--border);
+    }
+
+    .btn-primary {
+      background: var(--btn-bg);
+      color: var(--btn-ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--border);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 26px 20px 64px;
+    }
+
+    /* Centered Hero Header */
+    .hub-hero {
+      text-align: center;
+      max-width: 680px;
+      margin: 8px auto 32px;
+      padding: 22px 16px 26px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .hub-logo-svg {
+      display: block;
+      margin: 0 auto 10px;
+    }
+
+    .hub-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5.5vw, 3.8rem);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .hub-tagline {
+      margin: 10px 0 20px;
+      font-size: 1.05rem;
+      color: var(--ink-muted);
+      font-weight: 500;
+      text-wrap: balance;
+    }
+
+    .hub-cta-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hub-meta {
+      margin-top: 14px;
+      font-size: 0.84rem;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Filter Row */
+    .hub-filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .segmented {
+      display: inline-flex;
+      background: var(--bg-subtle);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+
+    .segmented button {
+      min-height: 34px;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+      transition: background-color 120ms ease, color 120ms ease;
+    }
+
+    .segmented button[aria-pressed="true"] {
+      background: var(--btn-bg);
+      color: var(--btn-ink);
+    }
+
+    /* Game Grid */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    @media (max-width: 960px) {
+      .game-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .game-grid {
+        grid-template-columns: 1fr;
+      }
+      .topbar {
+        padding: 0 10px;
+        gap: 6px;
+      }
+      .brand-btn {
+        font-size: 1.05rem;
+        gap: 6px;
+      }
+      .brand-mark {
+        width: 24px;
+        height: 24px;
+        font-size: 0.8rem;
+      }
+      .header-actions {
+        gap: 5px;
+      }
+      .btn-label-hide-sm {
+        display: none;
+      }
+      .topbar .btn {
+        padding: 5px 8px;
+        font-size: 0.74rem;
+        min-height: 34px;
+      }
+      .container {
+        padding: 16px 12px 48px;
+      }
+      .segmented {
+        width: 100%;
+        justify-content: center;
+      }
+      .segmented button {
+        padding: 5px 9px;
+        font-size: 0.78rem;
+      }
+    }
+
+    .game-card {
+      text-align: left;
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-hard);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 160ms ease;
+    }
+
+    .game-card:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 7px 7px 0px var(--border);
+    }
+
+    .game-card-art {
+      height: 136px;
+      width: 100%;
+      background: var(--bg-subtle);
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-card-body {
+      padding: 16px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .game-card-kicker {
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .game-card-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+
+    .game-card-desc {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--ink-muted);
+      line-height: 1.45;
+    }
+
+    .game-card-stat {
+      margin-top: auto;
+      padding-top: 8px;
+      font-size: 0.8rem;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    /* Active Game Shell & Sticky Back Bar */
+    .game-shell {
+      display: none;
+    }
+
+    .game-shell.active {
+      display: block;
+    }
+
+    .hub-view.hidden {
+      display: none;
+    }
+
+    .sticky-back-bar {
+      position: sticky;
+      top: 56px;
+      z-index: 45;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 14px;
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .back-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .game-heading {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .game-subtitle {
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+    }
+
+    .stage-panel {
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-hard);
+      padding: 20px;
+    }
+
+    .input-field {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-canvas);
+      border: 2px solid var(--border);
+      color: var(--ink);
+      font-size: 0.98rem;
+      font-weight: 600;
+    }
+
+    .input-field:focus {
+      outline: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Animations */
+    @keyframes popBounce {
+      0% { transform: scale(0.92); opacity: 0; }
+      60% { transform: scale(1.03); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .pop-in {
+      animation: popBounce 220ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Game 1: Element Alchemy */
+    .alchemy-layout {
+      display: grid;
+      grid-template-columns: 1fr 330px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .alchemy-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .alchemy-board {
+      position: relative;
+      min-height: 440px;
+      background: var(--bg-subtle);
+      background-image: radial-gradient(var(--border-soft) 1px, transparent 1px);
+      background-size: 20px 20px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .alchemy-board-hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      color: var(--ink-muted);
+      font-weight: 600;
+      font-size: 0.92rem;
+      pointer-events: none;
+    }
+
+    .alchemy-node {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 12px;
+      min-height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .alchemy-node.selected {
+      background: var(--btn-bg);
+      color: var(--btn-ink);
+    }
+
+    .alchemy-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .alchemy-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 4px 2px;
+    }
+
+    .element-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 36px;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: transform 120ms ease;
+    }
+
+    .element-chip:hover {
+      transform: translate(-1px, -1px);
+    }
+
+    .discovery-banner {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--btn-bg);
+      color: var(--btn-ink);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      font-size: 0.92rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Game 2: Spend Fortune */
+    .fortune-header {
+      background: var(--bg-subtle);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .fortune-balance {
+      font-size: clamp(1.6rem, 4vw, 2.5rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      border-radius: 6px;
+      background: var(--bg-canvas);
+      border: 2px solid var(--border);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--btn-bg);
+      width: 0%;
+      transition: width 180ms ease;
+    }
+
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 580px) {
+      .shop-grid { grid-template-columns: 1fr; }
+    }
+
+    .shop-card {
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .shop-art {
+      height: 76px;
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shop-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: auto;
+      padding-top: 6px;
+    }
+
+    .shop-qty {
+      min-width: 36px;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .receipt-box {
+      margin-top: 22px;
+      border-top: 2px solid var(--border);
+      padding-top: 18px;
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px dashed var(--border-soft);
+      font-size: 0.9rem;
+      gap: 12px;
+    }
+
+    /* Game 3: Impossible Password */
+    .rule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .rule-item {
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      transition: transform 150ms ease, background-color 150ms ease;
+    }
+
+    .rule-item.pass {
+      background: var(--pass-bg);
+      color: var(--pass-ink);
+    }
+
+    .rule-item.fail {
+      background: var(--fail-bg);
+      color: var(--fail-ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .rule-status {
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Game 4: Perfect Circle */
+    .canvas-frame {
+      width: 100%;
+      background: var(--bg-canvas);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .circle-canvas {
+      display: block;
+      width: 100%;
+      height: 420px;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    /* Game 5: Reaction & CPS Lab */
+    .lab-pad {
+      min-height: 280px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-hard);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 28px;
+      gap: 10px;
+      user-select: none;
+      width: 100%;
+      transition: background-color 80ms ease, color 80ms ease;
+    }
+
+    .lab-pad.state-wait {
+      background: var(--bg-subtle);
+    }
+
+    .lab-pad.state-go {
+      background: var(--btn-bg);
+      color: var(--btn-ink);
+    }
+
+    .lab-pad.state-go .muted-text {
+      color: var(--btn-ink);
+      opacity: 0.85;
+    }
+
+    .rank-card {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Game 6: Deep Sea to Outer Space Explorer */
+    .explorer-viewport {
+      position: relative;
+      height: 540px;
+      overflow-y: auto;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border);
+      scroll-behavior: smooth;
+    }
+
+    .explorer-hud {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      padding: 12px 16px;
+      background: #0a0a0a;
+      color: #ffffff;
+      border-bottom: 2px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .explorer-column {
+      position: relative;
+      width: 100%;
+    }
+
+    .explorer-milestone {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      max-width: 580px;
+      margin: 0 auto;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      background: rgba(10, 10, 10, 0.88);
+      border: 2px solid #ffffff;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Game 7: Pixel Art Studio */
+    .pixel-studio-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 780px) {
+      .pixel-studio-grid { grid-template-columns: 1fr; }
+    }
+
+    .pixel-canvas {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 1 / 1;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      touch-action: none;
+      cursor: crosshair;
+      image-rendering: pixelated;
+    }
+
+    .swatch-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .swatch-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: 2px solid var(--border);
+    }
+
+    .swatch-btn.active {
+      outline: 3px solid var(--ink);
+      outline-offset: 2px;
+    }
+
+    /* Game 8: Life Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 780px) {
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 500px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    .stat-tile {
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: 16px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin: 4px 0;
+      word-break: break-word;
+    }
+
+    /* Game 9: Sound Mixer */
+    .mixer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 680px) {
+      .mixer-grid { grid-template-columns: 1fr; }
+    }
+
+    .mixer-channel {
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .range-slider {
+      width: 100%;
+      accent-color: var(--ink);
+      height: 24px;
+      cursor: pointer;
+    }
+
+    /* Game 10: Geometry Dodge Dash */
+    .dodge-wrap {
+      position: relative;
+      width: 100%;
+      height: 460px;
+      background: #0a0a0a;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .dodge-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    .dodge-hud {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      color: #ffffff;
+    }
+
+    .dodge-hud-group {
+      display: flex;
+      gap: 16px;
+      background: rgba(10, 10, 10, 0.9);
+      border: 2px solid #ffffff;
+      border-radius: 8px;
+      padding: 6px 12px;
+    }
+
+    .dodge-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(10, 10, 10, 0.82);
+    }
+
+    .dodge-overlay.hidden {
+      display: none;
+    }
+
+    .dodge-modal {
+      background: var(--bg-surface);
+      color: var(--ink);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-hard);
+      border-radius: var(--radius-lg);
+      padding: 24px 26px;
+      max-width: 390px;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Game 11: Gravity Sand */
+    .sand-canvas {
+      display: block;
+      width: 100%;
+      height: 420px;
+      background: #0a0a0a;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      touch-action: none;
+      cursor: crosshair;
+      image-rendering: pixelated;
+    }
+
+    /* Game 12: Memory & Aim Trainer */
+    .aim-arena {
+      position: relative;
+      height: 400px;
+      background: var(--bg-subtle);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .aim-target {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--btn-bg);
+      color: var(--btn-ink);
+      border: 3px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%);
+    }
+
+    .simon-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      max-width: 420px;
+      margin: 18px auto 0;
+    }
+
+    .simon-pad {
+      height: 130px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-hard);
+      background: var(--bg-surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 800;
+      transition: transform 90ms ease, background-color 90ms ease, color 90ms ease;
+    }
+
+    .simon-pad.lit {
+      background: var(--btn-bg);
+      color: var(--btn-ink);
+      transform: translate(2px, 2px);
+      box-shadow: none;
+    }
+
+    .muted-text {
+      color: var(--ink-muted);
+      font-size: 0.9rem;
+    }
+
+    .row-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .space-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body data-state="hub">
+  <header class="topbar">
+    <button type="button" class="brand-btn" id="brandHomeBtn" aria-label="AZE.fun Home">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span>AZE.fun</span>
+    </button>
+
+    <div class="header-actions">
+      <button type="button" class="btn btn-ghost" id="muteToggleBtn" aria-label="Turn sound off" aria-pressed="false">
+        <span id="muteLabel">Sound ON</span>
+      </button>
+
+      <button type="button" class="btn btn-ghost" id="themeToggleBtn" aria-label="Toggle Invert Mode" aria-pressed="false">
+        <span id="themeLabel">Invert Mode</span>
+      </button>
+
+      <button type="button" class="btn btn-primary" id="headerRandomBtn">
+        <span>Random Toy 🎲</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HUB VIEW -->
+    <section id="hubView" class="hub-view" aria-label="AZE.fun Arcade Hub">
+      <div class="hub-hero">
+        <svg class="hub-logo-svg" width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+          <rect x="3" y="3" width="50" height="50" rx="12" fill="var(--bg-surface)" stroke="var(--ink)" stroke-width="3"/>
+          <path d="M16 40L28 14L40 40M20.5 31H35.5" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="43" cy="14" r="4" fill="var(--ink)"/>
+        </svg>
+        <h1 class="hub-title">AZE.fun</h1>
+        <p class="hub-tagline">Interactive web toys, experiments &amp; mini-games</p>
+        <div class="hub-cta-row">
+          <button type="button" class="btn btn-primary" id="heroRandomBtn">Random Toy 🎲</button>
+          <button type="button" class="btn btn-ghost" id="continueLastBtn" style="display:none;">Resume Last</button>
+        </div>
+        <div class="hub-meta" id="hubSummaryMeta">
+          <span>12 Original Toys</span>
+          <span aria-hidden="true">·</span>
+          <span id="hubProgressText">0 / 12 Played</span>
+        </div>
+      </div>
+
+      <div class="hub-filter-row">
+        <div class="segmented" role="group" aria-label="Filter toys by category" id="hubFilterBar">
+          <button type="button" data-cat="all" aria-pressed="true">All (12)</button>
+          <button type="button" data-cat="puzzle" aria-pressed="false">Craft &amp; Logic</button>
+          <button type="button" data-cat="arcade" aria-pressed="false">Arcade &amp; Aim</button>
+          <button type="button" data-cat="toys" aria-pressed="false">Physics &amp; Toys</button>
+        </div>
+      </div>
+
+      <div class="game-grid" id="gameGrid"></div>
+    </section>
+
+    <!-- GAME VIEW -->
+    <section id="gameShell" class="game-shell" aria-label="Active Toy">
+      <div class="sticky-back-bar">
+        <div class="back-bar-left">
+          <button type="button" class="btn btn-primary" id="backToHubBtn">← Back to AZE.fun</button>
+          <div>
+            <h2 class="game-heading" id="activeGameTitle">Game</h2>
+            <div class="game-subtitle" id="activeGameSubtitle">Subtitle</div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-ghost" id="nextRandomBtn">Random Toy 🎲</button>
+      </div>
+
+      <div id="gameMount" class="stage-panel"></div>
+    </section>
+  </main>
+
+  <!-- PURE LOGIC CORE -->
+  <script id="aze-core">
+  (function (root) {
+    'use strict';
+
+    var STARTERS = [
+      { id: 'fire', name: 'Fire', kind: 'flame' },
+      { id: 'water', name: 'Water', kind: 'drop' },
+      { id: 'earth', name: 'Earth', kind: 'globe' },
+      { id: 'air', name: 'Air', kind: 'wind' }
+    ];
+
+    var ELEMENTS = {
+      fire: { id: 'fire', name: 'Fire', kind: 'flame' },
+      water: { id: 'water', name: 'Water', kind: 'drop' },
+      earth: { id: 'earth', name: 'Earth', kind: 'globe' },
+      air: { id: 'air', name: 'Air', kind: 'wind' },
+      steam: { id: 'steam', name: 'Steam', kind: 'cloud' },
+      lava: { id: 'lava', name: 'Lava', kind: 'volcano' },
+      mud: { id: 'mud', name: 'Mud', kind: 'blob' },
+      dust: { id: 'dust', name: 'Dust', kind: 'dots' },
+      rain: { id: 'rain', name: 'Rain', kind: 'rain' },
+      energy: { id: 'energy', name: 'Energy', kind: 'bolt' },
+      cloud: { id: 'cloud', name: 'Cloud', kind: 'cloud' },
+      ocean: { id: 'ocean', name: 'Ocean', kind: 'wave' },
+      sand: { id: 'sand', name: 'Sand', kind: 'dots' },
+      glass: { id: 'glass', name: 'Glass', kind: 'prism' },
+      brick: { id: 'brick', name: 'Brick', kind: 'brick' },
+      wall: { id: 'wall', name: 'Wall', kind: 'brick' },
+      house: { id: 'house', name: 'House', kind: 'house' },
+      city: { id: 'city', name: 'City', kind: 'city' },
+      plant: { id: 'plant', name: 'Plant', kind: 'leaf' },
+      tree: { id: 'tree', name: 'Tree', kind: 'tree' },
+      forest: { id: 'forest', name: 'Forest', kind: 'tree' },
+      wood: { id: 'wood', name: 'Wood', kind: 'brick' },
+      paper: { id: 'paper', name: 'Paper', kind: 'doc' },
+      book: { id: 'book', name: 'Book', kind: 'doc' },
+      stone: { id: 'stone', name: 'Stone', kind: 'rock' },
+      obsidian: { id: 'obsidian', name: 'Obsidian', kind: 'prism' },
+      metal: { id: 'metal', name: 'Metal', kind: 'gear' },
+      sword: { id: 'sword', name: 'Sword', kind: 'sword' },
+      robot: { id: 'robot', name: 'Robot', kind: 'robot' },
+      ai: { id: 'ai', name: 'AI', kind: 'chip' },
+      computer: { id: 'computer', name: 'Computer', kind: 'chip' },
+      internet: { id: 'internet', name: 'Internet', kind: 'globe' },
+      videogame: { id: 'videogame', name: 'Video Game', kind: 'gamepad' },
+      storm: { id: 'storm', name: 'Storm', kind: 'bolt' },
+      lightning: { id: 'lightning', name: 'Lightning', kind: 'bolt' },
+      rainbow: { id: 'rainbow', name: 'Rainbow', kind: 'arc' },
+      sun: { id: 'sun', name: 'Sun', kind: 'sun' },
+      star: { id: 'star', name: 'Star', kind: 'star' },
+      galaxy: { id: 'galaxy', name: 'Galaxy', kind: 'spiral' },
+      blackhole: { id: 'blackhole', name: 'Black Hole', kind: 'hole' },
+      moon: { id: 'moon', name: 'Moon', kind: 'moon' },
+      eclipse: { id: 'eclipse', name: 'Eclipse', kind: 'hole' },
+      ice: { id: 'ice', name: 'Ice', kind: 'prism' },
+      snow: { id: 'snow', name: 'Snow', kind: 'star' },
+      snowman: { id: 'snowman', name: 'Snowman', kind: 'blob' },
+      wheat: { id: 'wheat', name: 'Wheat', kind: 'leaf' },
+      flour: { id: 'flour', name: 'Flour', kind: 'dots' },
+      dough: { id: 'dough', name: 'Dough', kind: 'blob' },
+      bread: { id: 'bread', name: 'Bread', kind: 'blob' },
+      milk: { id: 'milk', name: 'Milk', kind: 'drop' },
+      cheese: { id: 'cheese', name: 'Cheese', kind: 'prism' },
+      tomato: { id: 'tomato', name: 'Tomato', kind: 'blob' },
+      pizza: { id: 'pizza', name: 'Pizza', kind: 'pizza' },
+      coffee: { id: 'coffee', name: 'Coffee', kind: 'cup' },
+      diamond: { id: 'diamond', name: 'Diamond', kind: 'prism' },
+      gold: { id: 'gold', name: 'Gold', kind: 'coin' },
+      crown: { id: 'crown', name: 'Crown', kind: 'crown' },
+      treasure: { id: 'treasure', name: 'Treasure', kind: 'coin' },
+      rocket: { id: 'rocket', name: 'Rocket', kind: 'rocket' },
+      astronaut: { id: 'astronaut', name: 'Astronaut', kind: 'robot' },
+      island: { id: 'island', name: 'Island', kind: 'wave' },
+      fish: { id: 'fish', name: 'Fish', kind: 'fish' },
+      whale: { id: 'whale', name: 'Whale', kind: 'fish' },
+      coral: { id: 'coral', name: 'Coral', kind: 'tree' },
+      dragon: { id: 'dragon', name: 'Dragon', kind: 'flame' },
+      phoenix: { id: 'phoenix', name: 'Phoenix', kind: 'flame' },
+      magic: { id: 'magic', name: 'Magic', kind: 'star' },
+      wizard: { id: 'wizard', name: 'Wizard', kind: 'crown' },
+      potion: { id: 'potion', name: 'Potion', kind: 'cup' },
+      music: { id: 'music', name: 'Music', kind: 'note' },
+      clock: { id: 'clock', name: 'Clock', kind: 'clock' },
+      car: { id: 'car', name: 'Car', kind: 'car' },
+      battery: { id: 'battery', name: 'Battery', kind: 'bolt' },
+      cat: { id: 'cat', name: 'Cat', kind: 'cat' },
+      cybercat: { id: 'cybercat', name: 'Cyber Cat', kind: 'cat' },
+      telescope: { id: 'telescope', name: 'Telescope', kind: 'rocket' }
+    };
+
+    var RAW_RECIPES = [
+      ['fire', 'water', 'steam'],
+      ['fire', 'earth', 'lava'],
+      ['water', 'earth', 'mud'],
+      ['earth', 'air', 'dust'],
+      ['water', 'air', 'rain'],
+      ['fire', 'air', 'energy'],
+      ['steam', 'air', 'cloud'],
+      ['water', 'water', 'ocean'],
+      ['stone', 'air', 'sand'],
+      ['dust', 'air', 'sand'],
+      ['sand', 'fire', 'glass'],
+      ['mud', 'fire', 'brick'],
+      ['brick', 'brick', 'wall'],
+      ['wall', 'wall', 'house'],
+      ['house', 'house', 'city'],
+      ['earth', 'rain', 'plant'],
+      ['plant', 'water', 'tree'],
+      ['tree', 'tree', 'forest'],
+      ['tree', 'fire', 'wood'],
+      ['tree', 'metal', 'wood'],
+      ['wood', 'water', 'paper'],
+      ['paper', 'paper', 'book'],
+      ['lava', 'water', 'obsidian'],
+      ['lava', 'air', 'stone'],
+      ['stone', 'fire', 'metal'],
+      ['metal', 'fire', 'sword'],
+      ['metal', 'energy', 'robot'],
+      ['robot', 'energy', 'ai'],
+      ['metal', 'glass', 'computer'],
+      ['energy', 'glass', 'computer'],
+      ['computer', 'computer', 'internet'],
+      ['computer', 'ai', 'internet'],
+      ['computer', 'magic', 'videogame'],
+      ['computer', 'energy', 'videogame'],
+      ['cloud', 'rain', 'storm'],
+      ['cloud', 'energy', 'lightning'],
+      ['storm', 'energy', 'lightning'],
+      ['rain', 'sun', 'rainbow'],
+      ['fire', 'energy', 'sun'],
+      ['sun', 'energy', 'star'],
+      ['star', 'star', 'galaxy'],
+      ['star', 'obsidian', 'blackhole'],
+      ['galaxy', 'energy', 'blackhole'],
+      ['star', 'stone', 'moon'],
+      ['sun', 'moon', 'eclipse'],
+      ['water', 'cloud', 'ice'],
+      ['rain', 'ice', 'snow'],
+      ['snow', 'earth', 'snowman'],
+      ['plant', 'sun', 'wheat'],
+      ['wheat', 'stone', 'flour'],
+      ['flour', 'water', 'dough'],
+      ['dough', 'fire', 'bread'],
+      ['plant', 'rain', 'tomato'],
+      ['wheat', 'water', 'milk'],
+      ['milk', 'fire', 'cheese'],
+      ['dough', 'cheese', 'pizza'],
+      ['dough', 'tomato', 'pizza'],
+      ['plant', 'fire', 'coffee'],
+      ['water', 'dust', 'coffee'],
+      ['obsidian', 'fire', 'diamond'],
+      ['metal', 'sun', 'gold'],
+      ['gold', 'diamond', 'crown'],
+      ['gold', 'house', 'treasure'],
+      ['metal', 'rocket', 'astronaut'],
+      ['metal', 'storm', 'rocket'],
+      ['energy', 'galaxy', 'rocket'],
+      ['rocket', 'house', 'astronaut'],
+      ['ocean', 'earth', 'island'],
+      ['ocean', 'plant', 'fish'],
+      ['fish', 'ocean', 'whale'],
+      ['ocean', 'stone', 'coral'],
+      ['fire', 'wizard', 'dragon'],
+      ['lava', 'wizard', 'dragon'],
+      ['fire', 'star', 'phoenix'],
+      ['star', 'energy', 'magic'],
+      ['book', 'magic', 'wizard'],
+      ['water', 'magic', 'potion'],
+      ['air', 'magic', 'music'],
+      ['metal', 'sand', 'clock'],
+      ['metal', 'city', 'car'],
+      ['lightning', 'metal', 'battery'],
+      ['steam', 'glass', 'ice'],
+      ['sun', 'air', 'rainbow'],
+      ['earth', 'sand', 'stone'],
+      ['cloud', 'fire', 'sun'],
+      ['ocean', 'sun', 'rain'],
+      ['island', 'treasure', 'gold'],
+      ['astronaut', 'moon', 'eclipse'],
+      ['astronaut', 'galaxy', 'blackhole'],
+      ['wizard', 'computer', 'ai'],
+      ['dragon', 'gold', 'treasure'],
+      ['music', 'robot', 'videogame'],
+      ['milk', 'house', 'cat'],
+      ['cat', 'robot', 'cybercat'],
+      ['cat', 'ai', 'cybercat'],
+      ['glass', 'star', 'telescope']
+    ];
+
+    var RECIPE_MAP = {};
+    for (var i = 0; i < RAW_RECIPES.length; i++) {
+      var a = RAW_RECIPES[i][0];
+      var b = RAW_RECIPES[i][1];
+      var res = RAW_RECIPES[i][2];
+      var key = a < b ? (a + '+' + b) : (b + '+' + a);
+      RECIPE_MAP[key] = res;
+    }
+
+    function combineElements(idA, idB) {
+      if (!idA || !idB) return null;
+      var key = idA < idB ? (idA + '+' + idB) : (idB + '+' + idA);
+      var outId = RECIPE_MAP[key];
+      if (!outId || !ELEMENTS[outId]) return null;
+      return ELEMENTS[outId];
+    }
+
+    function getMoonPhaseInfo(dateInput) {
+      var d = dateInput instanceof Date ? dateInput : new Date();
+      var synodic = 29.53058867;
+      var ref = Date.UTC(2000, 0, 6, 18, 14, 0);
+      var diffDays = (d.getTime() - ref) / 86400000;
+      var age = ((diffDays % synodic) + synodic) % synodic;
+      var idx = Math.floor(((age / synodic) * 8) + 0.5) % 8;
+      var phases = [
+        { name: 'New Moon', emoji: '🌑' },
+        { name: 'Waxing Crescent', emoji: '🌒' },
+        { name: 'First Quarter', emoji: '🌓' },
+        { name: 'Waxing Gibbous', emoji: '🌔' },
+        { name: 'Full Moon', emoji: '🌕' },
+        { name: 'Waning Gibbous', emoji: '🌖' },
+        { name: 'Last Quarter', emoji: '🌗' },
+        { name: 'Waning Crescent', emoji: '🌘' }
+      ];
+      return phases[idx];
+    }
+
+    function evaluatePasswordRules(pw, nowDate) {
+      var str = String(pw || '');
+      var d = nowDate instanceof Date ? nowDate : new Date();
+      var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      var todayName = days[d.getDay()];
+      var planets = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+      var moon = getMoonPhaseInfo(d);
+      var digits = str.match(/\d/g) || [];
+      var digitSum = 0;
+      for (var i = 0; i < digits.length; i++) {
+        digitSum += parseInt(digits[i], 10);
+      }
+      var lower = str.toLowerCase();
+      var hasPlanet = false;
+      for (var p = 0; p < planets.length; p++) {
+        if (lower.indexOf(planets[p]) !== -1) {
+          hasPlanet = true;
+          break;
+        }
+      }
+      var chessRegex = /([KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](=[QRBN])?[+#]?|O-O(-O)?)/;
+      var hexRegex = /#[0-9a-fA-F]{6}\b/;
+
+      var rules = [
+        { id: 1, text: 'At least 6 characters long', pass: str.length >= 6 },
+        { id: 2, text: 'Must include at least one number (0-9)', pass: /\d/.test(str) },
+        { id: 3, text: 'Must include an uppercase letter (A-Z)', pass: /[A-Z]/.test(str) },
+        { id: 4, text: 'Must include a special character (!@#$%^&*)', pass: /[!@#$%^&*]/.test(str) },
+        { id: 5, text: 'Digits in your password must add up to 25 (Current: ' + digitSum + ')', pass: digitSum === 25 },
+        { id: 6, text: 'Must include a Roman numeral (I, V, X, L, C, D, or M)', pass: /[IVXLCDM]/.test(str) },
+        { id: 7, text: "Must include today's day of the week (" + todayName + ")", pass: lower.indexOf(todayName.toLowerCase()) !== -1 },
+        { id: 8, text: 'Must include the name of a Solar System planet', pass: hasPlanet },
+        { id: 9, text: 'Must include a chess move in algebraic notation (e.g. e4, Nf3, O-O)', pass: chessRegex.test(str) },
+        { id: 10, text: "Must include today's moon phase (" + moon.name + ')', pass: lower.indexOf(moon.name.toLowerCase()) !== -1 || str.indexOf(moon.emoji) !== -1 },
+        { id: 11, text: 'Must include a 6-digit hex color code (e.g. #0a0a0a)', pass: hexRegex.test(str) },
+        { id: 12, text: 'Must contain "AZE" spelled backwards (EZA)', pass: str.indexOf('EZA') !== -1 }
+      ];
+
+      return {
+        rules: rules,
+        digitSum: digitSum,
+        moonPhase: moon,
+        todayName: todayName,
+        passedCount: rules.filter(function (r) { return r.pass; }).length,
+        allPassed: rules.every(function (r) { return r.pass; })
+      };
+    }
+
+    function scorePerfectCircle(points, center) {
+      if (!points || points.length < 12) {
+        return { score: 0, valid: false, feedback: 'Draw a larger full circle around the center dot.' };
+      }
+      var dists = [];
+      var sumR = 0;
+      var angleSet = {};
+      for (var i = 0; i < points.length; i++) {
+        var dx = points[i].x - center.x;
+        var dy = points[i].y - center.y;
+        var r = Math.sqrt(dx * dx + dy * dy);
+        dists.push(r);
+        sumR += r;
+        var angle = Math.atan2(dy, dx);
+        var sector = Math.floor(((angle + Math.PI) / (2 * Math.PI)) * 24);
+        angleSet[sector] = true;
+      }
+      var meanR = sumR / dists.length;
+      if (meanR < 28) {
+        return { score: 0, valid: false, feedback: 'Too small — draw wider around the center dot.' };
+      }
+      if (Object.keys(angleSet).length < 18) {
+        return { score: 0, valid: false, feedback: 'Complete the entire circle all the way around.' };
+      }
+
+      var varianceSum = 0;
+      for (var j = 0; j < dists.length; j++) {
+        var diff = Math.abs(dists[j] - meanR) / meanR;
+        varianceSum += diff * diff;
+      }
+      var rmse = Math.sqrt(varianceSum / dists.length);
+      var closureGap = Math.hypot(
+        points[0].x - points[points.length - 1].x,
+        points[0].y - points[points.length - 1].y
+      ) / meanR;
+      var penalty = (rmse * 185) + Math.max(0, (closureGap - 0.12) * 28);
+      var rawScore = Math.max(0, Math.min(100, 100 - penalty));
+      var rounded = Math.round(rawScore * 10) / 10;
+
+      var feedback = 'Keep your hand steady!';
+      if (rounded >= 95) feedback = '95%+ Precision! Geometric perfection.';
+      else if (rounded >= 88) feedback = 'Super clean circle!';
+      else if (rounded >= 75) feedback = 'Solid loop — tighten the symmetry.';
+      else if (closureGap > 0.35) feedback = 'Connect the start and end more cleanly.';
+
+      return { score: rounded, meanR: meanR, valid: true, feedback: feedback };
+    }
+
+    function getCpsRank(cps) {
+      if (cps >= 11) return { id: 'cyberbot', title: 'Cyberbot', note: 'Superhuman finger velocity.' };
+      if (cps >= 8) return { id: 'falcon', title: 'Falcon', note: 'Razor-sharp arcade reflexes.' };
+      if (cps >= 5) return { id: 'fox', title: 'Fox', note: 'Quick and nimble clicks.' };
+      return { id: 'snail', title: 'Snail', note: 'Calm and unhurried pace.' };
+    }
+
+    function calculateLifeStats(birthDateStr, nowDate) {
+      if (!birthDateStr) return null;
+      var parts = birthDateStr.split('-');
+      if (parts.length !== 3) return null;
+      var birth = new Date(
+        parseInt(parts[0], 10),
+        parseInt(parts[1], 10) - 1,
+        parseInt(parts[2], 10),
+        0, 0, 0, 0
+      );
+      if (isNaN(birth.getTime())) return null;
+      var now = nowDate instanceof Date ? nowDate : new Date();
+      var diffMs = now.getTime() - birth.getTime();
+      if (diffMs < 0) return { future: true };
+
+      var seconds = diffMs / 1000;
+      var minutes = seconds / 60;
+      var days = minutes / 1440;
+      var years = days / 365.2425;
+
+      var heartbeats = Math.floor(minutes * 72);
+      var breaths = Math.floor(minutes * 16);
+      var blinks = Math.floor(minutes * (17 * (16 / 24)));
+      var sunDistanceKm = Math.floor(years * 940000000);
+
+      var nextBday = new Date(now.getFullYear(), birth.getMonth(), birth.getDate());
+      if (nextBday.getTime() <= now.getTime()) {
+        nextBday = new Date(now.getFullYear() + 1, birth.getMonth(), birth.getDate());
+      }
+      var daysToBirthday = Math.ceil((nextBday.getTime() - now.getTime()) / 86400000);
+      var moonRoundTrips = (sunDistanceKm / 768800).toFixed(1);
+      var olympicPoolsAir = Math.floor((breaths * 0.5) / 2500000);
+
+      return {
+        future: false,
+        years: years,
+        days: Math.floor(days),
+        seconds: Math.floor(seconds),
+        heartbeats: heartbeats,
+        breaths: breaths,
+        blinks: blinks,
+        sunDistanceKm: sunDistanceKm,
+        daysToBirthday: daysToBirthday,
+        moonRoundTrips: moonRoundTrips,
+        olympicPoolsAir: olympicPoolsAir
+      };
+    }
+
+    function floodFillGrid(grid, size, startX, startY, newColor) {
+      if (startX < 0 || startY < 0 || startX >= size || startY >= size) return grid;
+      var idx = startY * size + startX;
+      var target = grid[idx];
+      if (target === newColor) return grid;
+      var next = grid.slice();
+      var queue = [[startX, startY]];
+      while (queue.length > 0) {
+        var cell = queue.shift();
+        var x = cell[0];
+        var y = cell[1];
+        if (x < 0 || y < 0 || x >= size || y >= size) continue;
+        var pos = y * size + x;
+        if (next[pos] !== target) continue;
+        next[pos] = newColor;
+        queue.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+      }
+      return next;
+    }
+
+    function computeFortuneTotals(items, counts, totalBudget) {
+      var spent = 0;
+      for (var i = 0; i < items.length; i++) {
+        var qty = counts[items[i].id] || 0;
+        spent += qty * items[i].price;
+      }
+      var remaining = Math.max(0, totalBudget - spent);
+      var pct = Math.min(100, (spent / totalBudget) * 100);
+      return { spent: spent, remaining: remaining, pct: pct };
+    }
+
+    function circleRectCollides(cx, cy, cr, rx, ry, rw, rh) {
+      var closestX = Math.max(rx, Math.min(cx, rx + rw));
+      var closestY = Math.max(ry, Math.min(cy, ry + rh));
+      var dx = cx - closestX;
+      var dy = cy - closestY;
+      return (dx * dx + dy * dy) <= (cr * cr);
+    }
+
+    // Cellular Automaton step for Gravity Sand & Physics Sandbox
+    // 0 = Empty, 1 = Sand, 2 = Water, 3 = Stone, 4 = Fire, 5 = Acid
+    function stepSandGrid(grid, w, h, tick) {
+      var dir = (tick % 2 === 0) ? 1 : -1;
+      for (var y = h - 2; y >= 0; y--) {
+        for (var xi = 0; xi < w; xi++) {
+          var x = dir === 1 ? xi : (w - 1 - xi);
+          var idx = y * w + x;
+          var cell = grid[idx];
+          if (cell === 0 || cell === 3) continue;
+
+          var below = (y + 1) * w + x;
+          if (cell === 1) { // Sand
+            if (grid[below] === 0 || grid[below] === 2) {
+              var tmp = grid[below];
+              grid[below] = 1;
+              grid[idx] = tmp;
+            } else {
+              var d1 = x + dir;
+              var d2 = x - dir;
+              if (d1 >= 0 && d1 < w && (grid[(y + 1) * w + d1] === 0 || grid[(y + 1) * w + d1] === 2)) {
+                var tmp1 = grid[(y + 1) * w + d1];
+                grid[(y + 1) * w + d1] = 1;
+                grid[idx] = tmp1;
+              } else if (d2 >= 0 && d2 < w && (grid[(y + 1) * w + d2] === 0 || grid[(y + 1) * w + d2] === 2)) {
+                var tmp2 = grid[(y + 1) * w + d2];
+                grid[(y + 1) * w + d2] = 1;
+                grid[idx] = tmp2;
+              }
+            }
+          } else if (cell === 2) { // Water
+            if (grid[below] === 0) {
+              grid[below] = 2;
+              grid[idx] = 0;
+            } else {
+              var w1 = x + dir;
+              var w2 = x - dir;
+              if (w1 >= 0 && w1 < w && grid[(y + 1) * w + w1] === 0) {
+                grid[(y + 1) * w + w1] = 2;
+                grid[idx] = 0;
+              } else if (w2 >= 0 && w2 < w && grid[(y + 1) * w + w2] === 0) {
+                grid[(y + 1) * w + w2] = 2;
+                grid[idx] = 0;
+              } else if (w1 >= 0 && w1 < w && grid[y * w + w1] === 0) {
+                grid[y * w + w1] = 2;
+                grid[idx] = 0;
+              } else if (w2 >= 0 && w2 < w && grid[y * w + w2] === 0) {
+                grid[y * w + w2] = 2;
+                grid[idx] = 0;
+              }
+            }
+          } else if (cell === 5) { // Acid
+            var bCell = grid[below];
+            if (bCell === 0) {
+              grid[below] = 5;
+              grid[idx] = 0;
+            } else if (bCell === 1 || bCell === 2 || bCell === 3) {
+              // Dissolve target and occasionally consume acid
+              grid[below] = 0;
+              if (((x + y + tick) % 3) === 0) grid[idx] = 0;
+            } else {
+              var a1 = x + dir;
+              if (a1 >= 0 && a1 < w && grid[y * w + a1] === 0) {
+                grid[y * w + a1] = 5;
+                grid[idx] = 0;
+              }
+            }
+          }
+        }
+      }
+      // Fire rises & evaporates adjacent water
+      for (var fy = 1; fy < h; fy++) {
+        for (var fx = 0; fx < w; fx++) {
+          var fIdx = fy * w + fx;
+          if (grid[fIdx] !== 4) continue;
+          var upIdx = (fy - 1) * w + fx;
+          if (grid[upIdx] === 2) {
+            grid[upIdx] = 0;
+            grid[fIdx] = 0;
+            continue;
+          }
+          if (((fx * 7 + fy * 13 + tick) % 7) === 0) {
+            grid[fIdx] = 0;
+          } else if (grid[upIdx] === 0 && ((fx + tick) % 2 === 0)) {
+            grid[upIdx] = 4;
+            grid[fIdx] = 0;
+          }
+        }
+      }
+      return grid;
+    }
+
+    var exported = {
+      STARTERS: STARTERS,
+      ELEMENTS: ELEMENTS,
+      combineElements: combineElements,
+      getMoonPhaseInfo: getMoonPhaseInfo,
+      evaluatePasswordRules: evaluatePasswordRules,
+      scorePerfectCircle: scorePerfectCircle,
+      getCpsRank: getCpsRank,
+      calculateLifeStats: calculateLifeStats,
+      floodFillGrid: floodFillGrid,
+      computeFortuneTotals: computeFortuneTotals,
+      circleRectCollides: circleRectCollides,
+      stepSandGrid: stepSandGrid
+    };
+
+    root.AZECore = exported;
+    if (typeof module !== 'undefined' && module.exports) {
+      module.exports = exported;
+    }
+  })(typeof window !== 'undefined' ? window : globalThis);
+  </script>
+
+  <!-- MAIN APPLICATION -->
+  <script>
+  (function () {
+    'use strict';
+
+    var Core = window.AZECore;
+
+    /* ---------------- STORAGE HELPERS ---------------- */
+    function loadJSON(key, fallback) {
+      try {
+        var raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function saveJSON(key, val) {
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch (e) {}
+    }
+
+    /* ---------------- MONOCHROME SVG ART LIBRARY ---------------- */
+    function getElementSvg(kind, size) {
+      var s = size || 18;
+      var paths = {
+        flame: '<path d="M12 2c1 4-2 6-2 9a3 3 0 0 0 6 0c0-2-1-3-1-3s4 2 4 7a7 7 0 0 1-14 0c0-5 4-9 7-13z" fill="currentColor"/>',
+        drop: '<path d="M12 2.5C8 8 5.5 11.5 5.5 15a6.5 6.5 0 0 0 13 0c0-3.5-2.5-7-6.5-12.5z" fill="none" stroke="currentColor" stroke-width="2.2"/>',
+        globe: '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 12h17M12 3.5a12 12 0 0 1 0 17M12 3.5a12 12 0 0 0 0 17" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+        wind: '<path d="M3 8h12a2.5 2.5 0 1 0-2.5-2.5M3 13h15a2.5 2.5 0 1 1-2.5 2.5M3 18h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+        cloud: '<path d="M7 18h10a4 4 0 0 0 .5-8A5.5 5.5 0 0 0 7 9a4.5 4.5 0 0 0 0 9z" fill="none" stroke="currentColor" stroke-width="2"/>',
+        volcano: '<path d="M3 20l6-11h6l6 11H3z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 6l2-3 2 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+        blob: '<circle cx="12" cy="12" r="7" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2"/>',
+        dots: '<circle cx="7" cy="15" r="2" fill="currentColor"/><circle cx="12" cy="9" r="2" fill="currentColor"/><circle cx="17" cy="15" r="2" fill="currentColor"/>',
+        rain: '<path d="M6 12a4 4 0 0 1 1-7.8A5 5 0 0 1 17 6a3.5 3.5 0 0 1 1 6.8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 16l-1 4M12 16l-1 4M16 16l-1 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+        bolt: '<path d="M13 2L5 14h6l-1 8 9-12h-6l0-8z" fill="currentColor"/>',
+        wave: '<path d="M2 10c2.5-3 5-3 7.5 0s5 3 7.5 0 4-2 5 0M2 16c2.5-3 5-3 7.5 0s5 3 7.5 0 4-2 5 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+        prism: '<polygon points="12,3 21,19 3,19" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+        brick: '<rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 5v7M8 12v7M16 12v7" stroke="currentColor" stroke-width="1.6"/>',
+        house: '<path d="M3 11l9-7 9 7v9H3v-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><rect x="10" y="14" width="4" height="6" fill="currentColor"/>',
+        city: '<rect x="3" y="9" width="5" height="11" stroke="currentColor" stroke-width="2" fill="none"/><rect x="9" y="4" width="6" height="16" stroke="currentColor" stroke-width="2" fill="none"/><rect x="16" y="11" width="5" height="9" stroke="currentColor" stroke-width="2" fill="none"/>',
+        leaf: '<path d="M5 19C5 11 11 5 19 5c0 8-6 14-14 14z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 19l9-9" stroke="currentColor" stroke-width="1.8"/>',
+        tree: '<polygon points="12,3 5,15 19,15" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 15v6M9 21h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+        doc: '<rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+        rock: '<polygon points="6,19 4,11 10,5 18,7 20,16 14,19" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+        gear: '<circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/>',
+        sword: '<path d="M18 4L6 16M4 18l3-3M14 4h6v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+        robot: '<rect x="5" y="6" width="14" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9.5" cy="11.5" r="1.5" fill="currentColor"/><circle cx="14.5" cy="11.5" r="1.5" fill="currentColor"/><path d="M9 15.5h6M12 3v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+        chip: '<rect x="6" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="10" y="10" width="4" height="4" fill="currentColor"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3" stroke="currentColor" stroke-width="1.8"/>',
+        gamepad: '<rect x="3" y="7" width="18" height="10" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10v4M6 12h4" stroke="currentColor" stroke-width="1.8"/><circle cx="15.5" cy="11" r="1" fill="currentColor"/><circle cx="17.5" cy="13" r="1" fill="currentColor"/>',
+        arc: '<path d="M4 17a8 8 0 0 1 16 0M7 17a5 5 0 0 1 10 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+        sun: '<circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+        star: '<polygon points="12,3 14.8,9 21,9.6 16.2,14 17.6,20.5 12,17 6.4,20.5 7.8,14 3,9.6 9.2,9" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+        spiral: '<path d="M12 12c0-2 2-3 3.5-2s2 4 0 5.5-5.5 1.5-7-1.5-1-7 3-8.5 8 1 8.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+        hole: '<circle cx="12" cy="12" r="7" fill="currentColor"/><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>',
+        moon: '<path d="M16 14.5A6.5 6.5 0 0 1 9.5 8a6.5 6.5 0 0 1 1.5-4.2A8 8 0 1 0 20.2 13a6.5 6.5 0 0 1-4.2 1.5z" fill="currentColor"/>',
+        pizza: '<polygon points="12,3 21,19 3,19" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="13" r="1.5" fill="currentColor"/><circle cx="10" cy="16.5" r="1.2" fill="currentColor"/><circle cx="14.5" cy="16" r="1.2" fill="currentColor"/>',
+        cup: '<path d="M5 9h10v7a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 10h2.5a2 2 0 0 1 0 4H15M8 4v2M12 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+        coin: '<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M9.5 10h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+        crown: '<path d="M3 18h18l-2-10-4.5 4L12 6l-2.5 6L5 8l-2 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+        rocket: '<path d="M12 3c4 3 5 8 5 13H7c0-5 1-10 5-13z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="1.8" fill="currentColor"/><path d="M7 14l-3 3h3M17 14l3 3h-3" stroke="currentColor" stroke-width="2"/>',
+        fish: '<path d="M4 12c3-4 8-5 13-2l3-3v10l-3-3c-5 3-10 2-13-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8.5" cy="11.5" r="1.2" fill="currentColor"/>',
+        note: '<path d="M9 17V6l10-2v11" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="17" r="2.5" fill="currentColor"/><circle cx="17" cy="15" r="2.5" fill="currentColor"/>',
+        clock: '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+        car: '<path d="M4 14l2-5h12l2 5v4H4v-4z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7.5" cy="18" r="2" fill="currentColor"/><circle cx="16.5" cy="18" r="2" fill="currentColor"/>',
+        cat: '<path d="M5 19V9l3-4 3 3h2l3-3 3 4v10H5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="9.5" cy="12.5" r="1.2" fill="currentColor"/><circle cx="14.5" cy="12.5" r="1.2" fill="currentColor"/><path d="M11 15l1 1 1-1" stroke="currentColor" stroke-width="1.6"/>'
+      };
+      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" aria-hidden="true">' + (paths[kind] || paths.blob) + '</svg>';
+    }
+
+    function getRankSvg(rankId) {
+      var map = {
+        snail: '<svg width="44" height="44" viewBox="0 0 44 44" fill="none"><path d="M8 32h26c2 0 4-2 4-4v-3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="20" cy="22" r="10" stroke="currentColor" stroke-width="2.5"/><path d="M20 22c0-3 3-4 4-2s-1 5-4 5-6-3-5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="36" cy="21" r="1.5" fill="currentColor"/></svg>',
+        fox: '<svg width="44" height="44" viewBox="0 0 44 44" fill="none"><polygon points="8,10 17,18 27,18 36,10 34,26 22,36 10,26" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><circle cx="17" cy="24" r="2" fill="currentColor"/><circle cx="27" cy="24" r="2" fill="currentColor"/><polygon points="20,30 24,30 22,33" fill="currentColor"/></svg>',
+        falcon: '<svg width="44" height="44" viewBox="0 0 44 44" fill="none"><path d="M6 16c6-2 11 0 16 5 5-5 10-7 16-5l-9 10-7 9-7-9-9-10z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><circle cx="22" cy="16" r="2.5" fill="currentColor"/></svg>',
+        cyberbot: '<svg width="44" height="44" viewBox="0 0 44 44" fill="none"><rect x="9" y="11" width="26" height="24" rx="5" stroke="currentColor" stroke-width="2.5"/><rect x="14" y="18" width="6" height="4" fill="currentColor"/><rect x="24" y="18" width="6" height="4" fill="currentColor"/><path d="M16 28h12M22 5v6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>'
+      };
+      return map[rankId] || map.snail;
+    }
+
+    /* ---------------- WEB AUDIO FX ENGINE ---------------- */
+    var SoundFX = (function () {
+      var ctx = null;
+      var muted = loadJSON('aze_muted', false);
+
+      function getCtx() {
+        if (!ctx) {
+          var AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) ctx = new AudioCtx();
+        }
+        if (ctx && ctx.state === 'suspended') {
+          ctx.resume().catch(function () {});
+        }
+        return ctx;
+      }
+
+      function tone(freq, dur, type, vol, endFreq) {
+        if (muted) return;
+        var ac = getCtx();
+        if (!ac) return;
+        try {
+          var now = ac.currentTime;
+          var osc = ac.createOscillator();
+          var gain = ac.createGain();
+          osc.type = type || 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          if (endFreq) osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), now + dur);
+          gain.gain.setValueAtTime(vol || 0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+          osc.connect(gain);
+          gain.connect(ac.destination);
+          osc.start(now);
+          osc.stop(now + dur + 0.02);
+        } catch (e) {}
+      }
+
+      return {
+        isMuted: function () { return muted; },
+        setMuted: function (next) {
+          muted = !!next;
+          saveJSON('aze_muted', muted);
+        },
+        getContext: getCtx,
+        tone: tone,
+        click: function () { tone(540, 0.04, 'triangle', 0.06, 260); },
+        pop: function () { tone(380, 0.07, 'sine', 0.08, 700); },
+        chime: function () {
+          tone(523.25, 0.13, 'triangle', 0.07);
+          setTimeout(function () { tone(659.25, 0.13, 'triangle', 0.07); }, 60);
+          setTimeout(function () { tone(783.99, 0.22, 'triangle', 0.08); }, 120);
+        },
+        buzz: function () { tone(135, 0.15, 'sawtooth', 0.05, 90); },
+        cash: function () {
+          tone(880, 0.06, 'sine', 0.06);
+          setTimeout(function () { tone(1318, 0.12, 'sine', 0.07); }, 45);
+        },
+        pickup: function () { tone(660, 0.08, 'sine', 0.07, 990); }
+      };
+    })();
+
+    /* ---------------- THEME & HEADER ---------------- */
+    var inverted = loadJSON('aze_inverted', false);
+
+    function applyTheme(nextInv) {
+      inverted = !!nextInv;
+      saveJSON('aze_inverted', inverted);
+      var btn = document.getElementById('themeToggleBtn');
+      var lbl = document.getElementById('themeLabel');
+      if (inverted) {
+        document.documentElement.classList.add('inverted');
+        lbl.textContent = 'Normal Mode';
+        btn.setAttribute('aria-pressed', 'true');
+      } else {
+        document.documentElement.classList.remove('inverted');
+        lbl.textContent = 'Invert Mode';
+        btn.setAttribute('aria-pressed', 'false');
+      }
+    }
+
+    function syncMuteBtn() {
+      var m = SoundFX.isMuted();
+      document.getElementById('muteLabel').textContent = m ? 'Sound OFF' : 'Sound ON';
+      document.getElementById('muteToggleBtn').setAttribute('aria-label', m ? 'Turn sound on' : 'Turn sound off');
+      document.getElementById('muteToggleBtn').setAttribute('aria-pressed', m ? 'true' : 'false');
+    }
+
+    /* ---------------- 12 GAME CATALOG & CUSTOM MONOCHROME ARTWORK ---------------- */
+    var GAMES = [
+      {
+        id: 'alchemy',
+        title: 'Element Alchemy',
+        category: 'puzzle',
+        tag: 'Crafting',
+        desc: 'Combine Fire, Water, Earth & Air into 75+ illustrated discoveries.',
+        statFn: function () {
+          var d = loadJSON('aze_alchemy_discovered', ['fire', 'water', 'earth', 'air']);
+          return d.length + ' / ' + Object.keys(Core.ELEMENTS).length + ' discovered';
+        },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><circle cx="58" cy="48" r="24" fill="var(--bg-surface)" stroke="var(--ink)" stroke-width="2.5"/><circle cx="102" cy="48" r="24" fill="var(--bg-surface)" stroke="var(--ink)" stroke-width="2.5" stroke-dasharray="5 3"/><path d="M80 34v28M66 48h28" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><circle cx="52" cy="48" r="5" fill="var(--ink)"/><polygon points="108,42 114,54 102,54" fill="var(--ink)"/></svg>'
+      },
+      {
+        id: 'fortune',
+        title: "Spend a Trillionaire's Fortune",
+        category: 'toys',
+        tag: 'Simulation',
+        desc: 'Blow through $1,000,000,000,000 on illustrated yachts, clubs & colonies.',
+        statFn: function () {
+          var counts = loadJSON('aze_fortune_counts', {});
+          var total = Object.values(counts).reduce(function (a, b) { return a + b; }, 0);
+          return total > 0 ? (total + ' items owned') : '$1,000,000,000,000 ready';
+        },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><rect x="34" y="24" width="92" height="48" rx="6" fill="var(--bg-surface)" stroke="var(--ink)" stroke-width="2.5"/><rect x="42" y="32" width="76" height="32" rx="3" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="80" cy="48" r="13" fill="var(--ink)"/><text x="80" y="53" text-anchor="middle" fill="var(--btn-ink)" font-size="16" font-weight="900">$</text></svg>'
+      },
+      {
+        id: 'password',
+        title: 'The Impossible Password',
+        category: 'puzzle',
+        tag: 'Logic',
+        desc: 'Survive 12 clever, escalating password rules validated live.',
+        statFn: function () {
+          var best = loadJSON('aze_password_best', 0);
+          return best >= 12 ? 'Solved all 12 rules!' : ('Best: ' + best + ' / 12 rules');
+        },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><rect x="52" y="42" width="56" height="38" rx="6" fill="var(--bg-surface)" stroke="var(--ink)" stroke-width="2.5"/><path d="M62 42v-10a18 18 0 0 1 36 0v10" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><circle cx="80" cy="58" r="5" fill="var(--ink)"/><path d="M80 61v9" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/></svg>'
+      },
+      {
+        id: 'circle',
+        title: 'Draw a Perfect Circle',
+        category: 'arcade',
+        tag: 'Precision',
+        desc: 'Freehand stroke challenge with live 0.0%–100.0% geometric scoring.',
+        statFn: function () {
+          var best = loadJSON('aze_circle_best', 0);
+          return best > 0 ? ('Best: ' + best.toFixed(1) + '%') : 'Draw to score';
+        },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><circle cx="80" cy="48" r="30" stroke="var(--ink)" stroke-width="3" stroke-dasharray="145 16" stroke-linecap="round"/><circle cx="80" cy="48" r="21" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="3 4"/><circle cx="80" cy="48" r="5" fill="var(--ink)"/></svg>'
+      },
+      {
+        id: 'reaction',
+        title: 'Reaction & Click Speed Lab',
+        category: 'arcade',
+        tag: 'Reflex',
+        desc: 'Millisecond reflex timer and 10s CPS test with illustrated ranks.',
+        statFn: function () {
+          var ms = loadJSON('aze_reflex_best', 0);
+          var cps = loadJSON('aze_cps_best', 0);
+          return ms > 0 ? ('Best: ' + ms + ' ms' + (cps ? ' · ' + cps.toFixed(1) + ' CPS' : '')) : 'Test reflex & CPS';
+        },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><polygon points="86,14 58,52 78,52 72,82 104,44 82,44" fill="var(--ink)"/><circle cx="42" cy="48" r="6" stroke="var(--ink)" stroke-width="2"/><circle cx="118" cy="48" r="6" stroke="var(--ink)" stroke-width="2"/></svg>'
+      },
+      {
+        id: 'explorer',
+        title: 'Deep Sea to Outer Space Explorer',
+        category: 'toys',
+        tag: 'Discovery',
+        desc: 'Dive to the Mariana Trench or blast upward past the Moon to Mars.',
+        statFn: function () { return '10,994m Trench ↔ Mars'; },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><path d="M18 54c14-8 26 8 40 0s26-8 40 0 26 8 44 0" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/><path d="M80 14l9 18H71l9-18z" fill="var(--ink)"/><circle cx="122" cy="24" r="9" fill="var(--bg-surface)" stroke="var(--ink)" stroke-width="2.2"/><ellipse cx="80" cy="74" rx="18" ry="8" fill="var(--bg-surface)" stroke="var(--ink)" stroke-width="2.2"/></svg>'
+      },
+      {
+        id: 'pixel',
+        title: 'Monochrome Pixel Art Studio',
+        category: 'puzzle',
+        tag: 'Creative',
+        desc: '16×16 shading canvas with mirror mode, fill bucket & PNG export.',
+        statFn: function () { return '16×16 Studio · PNG Export'; },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><rect x="44" y="16" width="24" height="24" fill="var(--ink)"/><rect x="68" y="16" width="24" height="24" fill="var(--bg-surface)" stroke="var(--ink)" stroke-width="2"/><rect x="92" y="16" width="24" height="24" fill="var(--ink)" fill-opacity="0.45"/><rect x="44" y="40" width="24" height="24" fill="var(--ink)" fill-opacity="0.25"/><rect x="68" y="40" width="24" height="24" fill="var(--ink)"/><rect x="92" y="40" width="24" height="24" fill="var(--bg-surface)" stroke="var(--ink)" stroke-width="2"/><rect x="44" y="16" width="72" height="64" stroke="var(--ink)" stroke-width="2.5"/></svg>'
+      },
+      {
+        id: 'lifestats',
+        title: 'Life Stats Live Counter',
+        category: 'toys',
+        tag: 'Telemetry',
+        desc: 'Live heartbeats, breaths, blinks, solar orbit km & milestone comparisons.',
+        statFn: function () {
+          var b = loadJSON('aze_birthday', '');
+          return b ? ('Birthday: ' + b) : 'Enter your birthday';
+        },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><path d="M16 52h28l10-26 14 48 12-36 10 14h54" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="136" cy="52" r="5" fill="var(--ink)"/></svg>'
+      },
+      {
+        id: 'mixer',
+        title: 'Ambient Soundboard Mixer',
+        category: 'toys',
+        tag: 'Audio',
+        desc: 'Live procedural Rain, Thunder, Vinyl Crackle, Campfire, Wind & Synth.',
+        statFn: function () { return '6 Live Web Audio Channels'; },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><line x1="50" y1="18" x2="50" y2="78" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><rect x="42" y="30" width="16" height="10" rx="2" fill="var(--ink)"/><line x1="80" y1="18" x2="80" y2="78" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><rect x="72" y="54" width="16" height="10" rx="2" fill="var(--ink)"/><line x1="110" y1="18" x2="110" y2="78" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><rect x="102" y="24" width="16" height="10" rx="2" fill="var(--ink)"/></svg>'
+      },
+      {
+        id: 'dodge',
+        title: 'Geometry Dodge Dash',
+        category: 'arcade',
+        tag: 'Canvas Arcade',
+        desc: 'High-contrast geometric reflex runner with particle blasts & high scores.',
+        statFn: function () {
+          var hi = loadJSON('aze_dodge_best', 0);
+          return hi > 0 ? ('High Score: ' + hi) : 'Space / Tap to launch';
+        },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><polygon points="80,26 98,48 80,70 62,48" fill="var(--ink)"/><rect x="26" y="24" width="22" height="14" stroke="var(--ink)" stroke-width="2.5"/><rect x="114" y="58" width="22" height="14" stroke="var(--ink)" stroke-width="2.5"/><circle cx="122" cy="28" r="7" fill="var(--bg-surface)" stroke="var(--ink)" stroke-width="2.5"/></svg>'
+      },
+      {
+        id: 'sand',
+        title: 'Gravity Sand & Physics Sandbox',
+        category: 'toys',
+        tag: 'Physics',
+        desc: 'Draw Sand, Water, Stone, Fire & Acid and watch real particle reactions.',
+        statFn: function () { return '5 Reactive Elements'; },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><path d="M24 76l34-30 22 14 26-26 30 42H24z" fill="var(--ink)" fill-opacity="0.18" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/><circle cx="64" cy="24" r="3" fill="var(--ink)"/><circle cx="72" cy="34" r="3" fill="var(--ink)"/><circle cx="80" cy="26" r="3" fill="var(--ink)"/><circle cx="86" cy="40" r="3" fill="var(--ink)"/></svg>'
+      },
+      {
+        id: 'memory',
+        title: 'Memory Pattern & Aim Trainer',
+        category: 'arcade',
+        tag: 'Aim & Memory',
+        desc: '30s monochrome target-aim challenge + Simon pattern memory game.',
+        statFn: function () {
+          var aim = loadJSON('aze_aim_best', 0);
+          var simon = loadJSON('aze_simon_best', 0);
+          return (aim || simon) ? ('Aim: ' + aim + ' · Pattern: R' + simon) : '2 Precision Modes';
+        },
+        svg: '<svg width="160" height="96" viewBox="0 0 160 96" fill="none"><circle cx="56" cy="48" r="22" stroke="var(--ink)" stroke-width="2.5"/><circle cx="56" cy="48" r="11" stroke="var(--ink)" stroke-width="2"/><circle cx="56" cy="48" r="3.5" fill="var(--ink)"/><rect x="96" y="26" width="18" height="18" rx="3" fill="var(--ink)"/><rect x="118" y="26" width="18" height="18" rx="3" stroke="var(--ink)" stroke-width="2"/><rect x="96" y="48" width="18" height="18" rx="3" stroke="var(--ink)" stroke-width="2"/><rect x="118" y="48" width="18" height="18" rx="3" fill="var(--ink)" fill-opacity="0.3" stroke="var(--ink)" stroke-width="2"/></svg>'
+      }
+    ];
+
+    /* ---------------- GAME MANAGER & LIFECYCLE ---------------- */
+    var activeGameId = null;
+    var activeCleanup = null;
+    var activeFilter = 'all';
+
+    function runCleanup() {
+      if (typeof activeCleanup === 'function') {
+        try { activeCleanup(); } catch (e) {}
+        activeCleanup = null;
+      }
+      document.body.dataset.state = 'hub';
+    }
+
+    function renderHub() {
+      var grid = document.getElementById('gameGrid');
+      var filtered = GAMES.filter(function (g) {
+        return activeFilter === 'all' || g.category === activeFilter;
+      });
+      grid.innerHTML = filtered.map(function (g, idx) {
+        return (
+          '<button type="button" class="game-card" data-game-id="' + g.id + '">' +
+            '<div class="game-card-art">' + g.svg + '</div>' +
+            '<div class="game-card-body">' +
+              '<div class="game-card-kicker"><span>' + String(idx + 1).padStart(2, '0') + '</span><span aria-hidden="true">·</span><span>' + g.tag + '</span></div>' +
+              '<h2 class="game-card-title">' + g.title + '</h2>' +
+              '<p class="game-card-desc">' + g.desc + '</p>' +
+              '<div class="game-card-stat tabular">' + g.statFn() + '</div>' +
+            '</div>' +
+          '</button>'
+        );
+      }).join('');
+
+      var played = loadJSON('aze_played_ids', []);
+      document.getElementById('hubProgressText').textContent = played.length + ' / ' + GAMES.length + ' Played · Saved Locally';
+
+      var lastId = loadJSON('aze_last_game', '');
+      var contBtn = document.getElementById('continueLastBtn');
+      if (lastId) {
+        var found = GAMES.find(function (g) { return g.id === lastId; });
+        if (found) {
+          contBtn.style.display = 'inline-flex';
+          contBtn.textContent = 'Resume: ' + found.title;
+        }
+      }
+    }
+
+    function showHub() {
+      runCleanup();
+      activeGameId = null;
+      document.getElementById('gameShell').classList.remove('active');
+      document.getElementById('hubView').classList.remove('hidden');
+      document.getElementById('gameMount').innerHTML = '';
+      renderHub();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    function openGame(gameId, opts) {
+      var game = GAMES.find(function (g) { return g.id === gameId; });
+      if (!game) return;
+      runCleanup();
+      activeGameId = game.id;
+      saveJSON('aze_last_game', game.id);
+      var played = loadJSON('aze_played_ids', []);
+      if (played.indexOf(game.id) === -1) {
+        played.push(game.id);
+        saveJSON('aze_played_ids', played);
+      }
+
+      document.getElementById('hubView').classList.add('hidden');
+      document.getElementById('gameShell').classList.add('active');
+      document.getElementById('activeGameTitle').textContent = game.title;
+      document.getElementById('activeGameSubtitle').textContent = game.desc;
+
+      var mount = document.getElementById('gameMount');
+      mount.innerHTML = '';
+      var builder = GAME_BUILDERS[game.id];
+      if (builder) {
+        activeCleanup = builder(mount, opts || {}) || null;
+      }
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    function openRandomGame() {
+      SoundFX.click();
+      var pool = GAMES.filter(function (g) { return g.id !== activeGameId; });
+      var pick = pool[Math.floor(Math.random() * pool.length)];
+      openGame(pick.id);
+    }
+
+    /* ---------------- 12 MINI-GAME BUILDERS ---------------- */
+    var GAME_BUILDERS = {};
+
+    /* 1. ELEMENT ALCHEMY */
+    GAME_BUILDERS.alchemy = function (mount) {
+      var discovered = loadJSON('aze_alchemy_discovered', ['fire', 'water', 'earth', 'air']);
+      var totalCount = Object.keys(Core.ELEMENTS).length;
+      var nodes = [];
+      var nextUid = 1;
+      var selectedUid = null;
+      var dragging = null;
+      var searchQ = '';
+      var confirmReset = false;
+
+      mount.innerHTML =
+        '<div class="space-between" style="margin-bottom:12px;">' +
+          '<div class="tabular" style="font-weight:800;">Discovered: <span id="alcCount"></span> / ' + totalCount + '</div>' +
+          '<div class="row-wrap">' +
+            '<button type="button" class="btn btn-ghost" id="alcClearBoard">Clear Workspace</button>' +
+            '<button type="button" class="btn btn-ghost" id="alcResetAll">Reset Progress</button>' +
+          '</div>' +
+        '</div>' +
+        '<div id="alcDiscoveryBanner" class="discovery-banner" style="display:none;margin-bottom:12px;"></div>' +
+        '<div class="alchemy-layout">' +
+          '<div class="alchemy-board" id="alcBoard" data-testid="alchemy-board">' +
+            '<div class="alchemy-board-hint" id="alcHint">Click elements on the right to spawn them here, then drag or click two elements together to combine!</div>' +
+          '</div>' +
+          '<div class="alchemy-sidebar">' +
+            '<label for="alcSearch" style="font-size:0.85rem;font-weight:700;">Discovered Elements</label>' +
+            '<input id="alcSearch" type="search" class="input-field" placeholder="Filter elements..." />' +
+            '<div class="alchemy-palette" id="alcPalette"></div>' +
+          '</div>' +
+        '</div>';
+
+      var board = mount.querySelector('#alcBoard');
+      var hint = mount.querySelector('#alcHint');
+      var palette = mount.querySelector('#alcPalette');
+      var countEl = mount.querySelector('#alcCount');
+      var banner = mount.querySelector('#alcDiscoveryBanner');
+      var resetBtn = mount.querySelector('#alcResetAll');
+
+      function updateHeader() {
+        countEl.textContent = String(discovered.length);
+        hint.style.display = nodes.length === 0 ? 'flex' : 'none';
+      }
+
+      function showBanner(el, isNew) {
+        banner.style.display = 'flex';
+        banner.classList.remove('pop-in');
+        void banner.offsetWidth;
+        banner.classList.add('pop-in');
+        banner.innerHTML =
+          '<span class="row-wrap">' + getElementSvg(el.kind, 20) + '<span>' + (isNew ? 'NEW DISCOVERY! ' : 'Combined: ') + el.name + '</span></span>' +
+          '<span class="tabular">' + discovered.length + '/' + totalCount + '</span>';
+      }
+
+      function renderPalette() {
+        var q = searchQ.trim().toLowerCase();
+        var html = discovered.filter(function (id) {
+          var el = Core.ELEMENTS[id];
+          return el && (!q || el.name.toLowerCase().indexOf(q) !== -1);
+        }).map(function (id) {
+          var el = Core.ELEMENTS[id];
+          return '<button type="button" class="element-chip" data-el-id="' + el.id + '" aria-label="Spawn ' + el.name + '">' + getElementSvg(el.kind, 16) + '<span>' + el.name + '</span></button>';
+        }).join('');
+        palette.innerHTML = html || '<div class="muted-text">No matching elements.</div>';
+      }
+
+      function renderNodes() {
+        var existing = board.querySelectorAll('.alchemy-node');
+        for (var i = 0; i < existing.length; i++) existing[i].remove();
+
+        nodes.forEach(function (n) {
+          var el = Core.ELEMENTS[n.id];
+          if (!el) return;
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'alchemy-node' + (selectedUid === n.uid ? ' selected' : '');
+          btn.style.left = n.x + 'px';
+          btn.style.top = n.y + 'px';
+          btn.dataset.uid = String(n.uid);
+          btn.setAttribute('aria-label', el.name + ' on workspace');
+          btn.innerHTML = getElementSvg(el.kind, 18) + '<span>' + el.name + '</span>';
+          board.appendChild(btn);
+        });
+        updateHeader();
+      }
+
+      function spawnNode(id, x, y) {
+        var bw = Math.max(200, board.clientWidth - 130);
+        var bh = Math.max(180, board.clientHeight - 54);
+        var nx = typeof x === 'number' ? Math.max(8, Math.min(bw, x)) : 24 + ((nodes.length * 41) % Math.max(60, bw - 30));
+        var ny = typeof y === 'number' ? Math.max(8, Math.min(bh, y)) : 24 + ((nodes.length * 31) % Math.max(60, bh - 30));
+        nodes.push({ uid: nextUid++, id: id, x: nx, y: ny });
+        renderNodes();
+      }
+
+      function tryCombineNodes(nodeA, nodeB) {
+        var result = Core.combineElements(nodeA.id, nodeB.id);
+        if (!result) {
+          SoundFX.buzz();
+          return false;
+        }
+        var midX = (nodeA.x + nodeB.x) / 2;
+        var midY = (nodeA.y + nodeB.y) / 2;
+        nodes = nodes.filter(function (n) { return n.uid !== nodeA.uid && n.uid !== nodeB.uid; });
+        nodes.push({ uid: nextUid++, id: result.id, x: midX, y: midY });
+        selectedUid = null;
+
+        var isNew = discovered.indexOf(result.id) === -1;
+        if (isNew) {
+          discovered.push(result.id);
+          saveJSON('aze_alchemy_discovered', discovered);
+          SoundFX.chime();
+          renderPalette();
+        } else {
+          SoundFX.pop();
+        }
+        showBanner(result, isNew);
+        renderNodes();
+        return true;
+      }
+
+      palette.addEventListener('click', function (e) {
+        var chip = e.target.closest('[data-el-id]');
+        if (!chip) return;
+        SoundFX.click();
+        spawnNode(chip.dataset.elId);
+      });
+
+      board.addEventListener('pointerdown', function (e) {
+        var nodeBtn = e.target.closest('.alchemy-node');
+        if (!nodeBtn) {
+          selectedUid = null;
+          renderNodes();
+          return;
+        }
+        var uid = parseInt(nodeBtn.dataset.uid, 10);
+        var node = nodes.find(function (n) { return n.uid === uid; });
+        if (!node) return;
+        var rect = board.getBoundingClientRect();
+        dragging = {
+          uid: uid,
+          startX: e.clientX,
+          startY: e.clientY,
+          offsetX: e.clientX - rect.left - node.x,
+          offsetY: e.clientY - rect.top - node.y,
+          moved: false
+        };
+        if (nodeBtn.setPointerCapture) {
+          try { nodeBtn.setPointerCapture(e.pointerId); } catch (err) {}
+        }
+      });
+
+      function onPointerMove(e) {
+        if (!dragging) return;
+        if (Math.hypot(e.clientX - dragging.startX, e.clientY - dragging.startY) > 4) dragging.moved = true;
+        var node = nodes.find(function (n) { return n.uid === dragging.uid; });
+        if (!node) return;
+        var rect = board.getBoundingClientRect();
+        node.x = Math.max(4, Math.min(rect.width - 115, e.clientX - rect.left - dragging.offsetX));
+        node.y = Math.max(4, Math.min(rect.height - 46, e.clientY - rect.top - dragging.offsetY));
+        var dom = board.querySelector('[data-uid="' + node.uid + '"]');
+        if (dom) {
+          dom.style.left = node.x + 'px';
+          dom.style.top = node.y + 'px';
+        }
+      }
+
+      function onPointerUp() {
+        if (!dragging) return;
+        var dragged = nodes.find(function (n) { return n.uid === dragging.uid; });
+        var wasMoved = dragging.moved;
+        dragging = null;
+        if (!dragged) return;
+        if (wasMoved) {
+          var hit = nodes.find(function (other) {
+            return other.uid !== dragged.uid && Math.abs(other.x - dragged.x) < 78 && Math.abs(other.y - dragged.y) < 38;
+          });
+          if (hit) { tryCombineNodes(dragged, hit); return; }
+        } else {
+          if (selectedUid !== null && selectedUid !== dragged.uid) {
+            var prev = nodes.find(function (n) { return n.uid === selectedUid; });
+            if (prev) { tryCombineNodes(prev, dragged); return; }
+          }
+          selectedUid = selectedUid === dragged.uid ? null : dragged.uid;
+          SoundFX.click();
+          renderNodes();
+        }
+      }
+
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp);
+
+      mount.querySelector('#alcSearch').addEventListener('input', function (e) {
+        searchQ = e.target.value;
+        renderPalette();
+      });
+      mount.querySelector('#alcClearBoard').addEventListener('click', function () {
+        SoundFX.click();
+        nodes = [];
+        selectedUid = null;
+        renderNodes();
+      });
+      resetBtn.addEventListener('click', function () {
+        if (!confirmReset) {
+          confirmReset = true;
+          resetBtn.textContent = 'Confirm Reset?';
+          setTimeout(function () {
+            confirmReset = false;
+            if (resetBtn.isConnected) resetBtn.textContent = 'Reset Progress';
+          }, 3000);
+          return;
+        }
+        confirmReset = false;
+        resetBtn.textContent = 'Reset Progress';
+        discovered = ['fire', 'water', 'earth', 'air'];
+        saveJSON('aze_alchemy_discovered', discovered);
+        nodes = [];
+        selectedUid = null;
+        banner.style.display = 'none';
+        SoundFX.click();
+        renderPalette();
+        renderNodes();
+      });
+
+      renderPalette();
+      renderNodes();
+      return function cleanup() {
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+      };
+    };
+
+    /* 2. SPEND A TRILLIONAIRE'S FORTUNE */
+    GAME_BUILDERS.fortune = function (mount) {
+      var BUDGET = 1000000000000;
+      var ITEMS = [
+        { id: 'espresso', name: 'Artisan Espresso', kind: 'cup', price: 5 },
+        { id: 'pizza', name: 'Gourmet Pizza Party', kind: 'pizza', price: 45 },
+        { id: 'sneakers', name: 'Collector Sneakers', kind: 'star', price: 350 },
+        { id: 'gamingpc', name: 'Custom Workstation', kind: 'chip', price: 4500 },
+        { id: 'watch', name: 'Swiss Tourbillon', kind: 'clock', price: 120000 },
+        { id: 'supercar', name: 'Hypercar', kind: 'car', price: 3200000 },
+        { id: 'mansion', name: 'Cliffside Estate', kind: 'house', price: 45000000 },
+        { id: 'jet', name: 'Long-Range Jet', kind: 'rocket', price: 85000000 },
+        { id: 'film', name: 'Blockbuster Movie', kind: 'gamepad', price: 250000000 },
+        { id: 'yacht', name: '140m Superyacht', kind: 'wave', price: 650000000 },
+        { id: 'island', name: 'Private Tropical Island', kind: 'tree', price: 900000000 },
+        { id: 'cruise', name: 'Mega Cruise Liner', kind: 'fish', price: 1500000000 },
+        { id: 'skyscraper', name: 'Glass Skyscraper', kind: 'city', price: 1800000000 },
+        { id: 'museum', name: 'Private Art Museum', kind: 'crown', price: 2400000000 },
+        { id: 'club', name: 'Premier Football Club', kind: 'globe', price: 4500000000 },
+        { id: 'rocket', name: 'Heavy Lift Rocket', kind: 'rocket', price: 150000000 },
+        { id: 'ai_cluster', name: 'AI Supercomputer', kind: 'robot', price: 6000000000 },
+        { id: 'solar', name: 'Desert Solar Grid', kind: 'sun', price: 8500000000 },
+        { id: 'telescope', name: 'Orbital Telescope', kind: 'star', price: 10000000000 },
+        { id: 'ocean_clean', name: 'Ocean Cleanup Fleet', kind: 'drop', price: 12000000000 },
+        { id: 'reforest', name: '10B Trees Initiative', kind: 'leaf', price: 15000000000 },
+        { id: 'rail', name: 'High-Speed Rail Line', kind: 'car', price: 18000000000 },
+        { id: 'moonbase', name: 'Lunar Research Base', kind: 'moon', price: 28000000000 },
+        { id: 'fusion', name: 'Fusion Power Plant', kind: 'bolt', price: 32000000000 },
+        { id: 'tether', name: 'Orbital Space Tether', kind: 'spiral', price: 45000000000 },
+        { id: 'mars', name: 'Mars Starter Colony', kind: 'hole', price: 75000000000 }
+      ];
+
+      var counts = loadJSON('aze_fortune_counts', {});
+      var displayedBalance = Core.computeFortuneTotals(ITEMS, counts, BUDGET).remaining;
+      var rafId = null;
+
+      function fmtMoney(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+      mount.innerHTML =
+        '<div class="fortune-header">' +
+          '<div class="space-between">' +
+            '<div>' +
+              '<div class="muted-text">Remaining Fortune</div>' +
+              '<div class="fortune-balance tabular" id="fortBalance">' + fmtMoney(displayedBalance) + '</div>' +
+            '</div>' +
+            '<div class="row-wrap">' +
+              '<div class="tabular" style="font-weight:800;" id="fortPct">0.00% Spent</div>' +
+              '<button type="button" class="btn btn-ghost" id="fortReset">Reset Fortune</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="progress-track"><div class="progress-fill" id="fortBar"></div></div>' +
+        '</div>' +
+        '<div class="shop-grid" id="fortGrid"></div>' +
+        '<div class="receipt-box">' +
+          '<h3 style="margin:0 0 10px;">Itemized Receipt</h3>' +
+          '<div id="fortReceipt"></div>' +
+        '</div>';
+
+      var balEl = mount.querySelector('#fortBalance');
+      var pctEl = mount.querySelector('#fortPct');
+      var barEl = mount.querySelector('#fortBar');
+      var gridEl = mount.querySelector('#fortGrid');
+      var recEl = mount.querySelector('#fortReceipt');
+
+      function animateBalance(target) {
+        if (rafId) cancelAnimationFrame(rafId);
+        var start = displayedBalance;
+        var t0 = performance.now();
+        function step(now) {
+          var p = Math.min(1, (now - t0) / 250);
+          var ease = 1 - Math.pow(1 - p, 3);
+          displayedBalance = start + (target - start) * ease;
+          balEl.textContent = fmtMoney(displayedBalance);
+          if (p < 1) rafId = requestAnimationFrame(step);
+          else { displayedBalance = target; balEl.textContent = fmtMoney(target); rafId = null; }
+        }
+        rafId = requestAnimationFrame(step);
+      }
+
+      function renderShop() {
+        var totals = Core.computeFortuneTotals(ITEMS, counts, BUDGET);
+        animateBalance(totals.remaining);
+        pctEl.textContent = totals.pct.toFixed(4) + '% Spent';
+        barEl.style.width = Math.max(totals.spent > 0 ? 0.5 : 0, totals.pct) + '%';
+
+        gridEl.innerHTML = ITEMS.map(function (item) {
+          var qty = counts[item.id] || 0;
+          var canBuy1 = totals.remaining >= item.price;
+          var canBuy10 = totals.remaining >= item.price * 10;
+          return (
+            '<div class="shop-card">' +
+              '<div class="shop-art">' + getElementSvg(item.kind, 42) + '</div>' +
+              '<div style="font-weight:800;font-size:1rem;">' + item.name + '</div>' +
+              '<div class="tabular" style="font-weight:700;">' + fmtMoney(item.price) + '</div>' +
+              '<div class="shop-controls">' +
+                '<button type="button" class="btn btn-ghost" data-act="sell" data-id="' + item.id + '" ' + (qty === 0 ? 'disabled' : '') + ' aria-label="Sell 1 ' + item.name + '">Sell</button>' +
+                '<span class="shop-qty tabular">' + qty + '</span>' +
+                '<button type="button" class="btn btn-primary" data-act="buy1" data-id="' + item.id + '" ' + (!canBuy1 ? 'disabled' : '') + ' aria-label="Buy 1 ' + item.name + '">Buy</button>' +
+                '<button type="button" class="btn btn-ghost" data-act="buy10" data-id="' + item.id + '" ' + (!canBuy10 ? 'disabled' : '') + ' aria-label="Buy 10 ' + item.name + '">+10</button>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        var bought = ITEMS.filter(function (it) { return (counts[it.id] || 0) > 0; });
+        if (bought.length === 0) {
+          recEl.innerHTML = '<div class="muted-text">No purchases yet — start spending!</div>';
+        } else {
+          recEl.innerHTML = bought.map(function (it) {
+            var q = counts[it.id];
+            return '<div class="receipt-row"><span class="row-wrap">' + getElementSvg(it.kind, 16) + '<span>' + it.name + ' × ' + q + '</span></span><span class="tabular" style="font-weight:800;">' + fmtMoney(q * it.price) + '</span></div>';
+          }).join('') +
+          '<div class="receipt-row" style="border-bottom:none;padding-top:12px;font-weight:900;"><span>TOTAL SPENT</span><span class="tabular">' + fmtMoney(totals.spent) + '</span></div>';
+        }
+      }
+
+      gridEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-act]');
+        if (!btn) return;
+        var id = btn.dataset.id;
+        var act = btn.dataset.act;
+        var item = ITEMS.find(function (x) { return x.id === id; });
+        if (!item) return;
+        var totals = Core.computeFortuneTotals(ITEMS, counts, BUDGET);
+        var cur = counts[id] || 0;
+        if (act === 'buy1' && totals.remaining >= item.price) { counts[id] = cur + 1; SoundFX.cash(); }
+        else if (act === 'buy10' && totals.remaining >= item.price * 10) { counts[id] = cur + 10; SoundFX.cash(); }
+        else if (act === 'sell' && cur > 0) { counts[id] = cur - 1; SoundFX.click(); }
+        else return;
+        saveJSON('aze_fortune_counts', counts);
+        renderShop();
+      });
+
+      mount.querySelector('#fortReset').addEventListener('click', function () {
+        counts = {};
+        saveJSON('aze_fortune_counts', counts);
+        SoundFX.click();
+        renderShop();
+      });
+
+      renderShop();
+      return function cleanup() { if (rafId) cancelAnimationFrame(rafId); };
+    };
+
+    /* 3. THE IMPOSSIBLE PASSWORD */
+    GAME_BUILDERS.password = function (mount) {
+      var moon = Core.getMoonPhaseInfo(new Date());
+      var unlockedCount = 1;
+      var best = loadJSON('aze_password_best', 0);
+
+      mount.innerHTML =
+        '<div class="space-between" style="margin-bottom:12px;">' +
+          '<div class="muted-text">Satisfy all 12 escalating rules live as you type.</div>' +
+          '<div class="tabular" style="font-weight:800;" id="pwScore">Passed: 0 / 12</div>' +
+        '</div>' +
+        '<label for="pwInput" style="display:block;font-weight:700;margin-bottom:6px;">Password</label>' +
+        '<input id="pwInput" type="text" class="input-field tabular" placeholder="Type your impossible password..." autocomplete="off" />' +
+        '<div class="row-wrap" style="margin-top:10px;justify-content:space-between;">' +
+          '<div class="muted-text tabular" id="pwMeta">Length: 0 · Digit Sum: 0 / 25</div>' +
+          '<div class="muted-text">Moon Almanac: ' + moon.emoji + ' ' + moon.name + '</div>' +
+        '</div>' +
+        '<div id="pwVictory" class="discovery-banner" style="display:none;margin-top:14px;">' +
+          '<span>🏆 Unstoppable! All 12 Impossible Password rules passed!</span>' +
+        '</div>' +
+        '<div class="rule-list" id="pwRules"></div>';
+
+      var inputEl = mount.querySelector('#pwInput');
+      var rulesEl = mount.querySelector('#pwRules');
+      var scoreEl = mount.querySelector('#pwScore');
+      var metaEl = mount.querySelector('#pwMeta');
+      var winEl = mount.querySelector('#pwVictory');
+      var prevPassIds = {};
+
+      function update() {
+        var val = inputEl.value;
+        var evalRes = Core.evaluatePasswordRules(val, new Date());
+
+        while (unlockedCount < evalRes.rules.length) {
+          var allVisiblePass = true;
+          for (var i = 0; i < unlockedCount; i++) {
+            if (!evalRes.rules[i].pass) { allVisiblePass = false; break; }
+          }
+          if (allVisiblePass) unlockedCount++;
+          else break;
+        }
+
+        if (evalRes.passedCount > best) {
+          best = evalRes.passedCount;
+          saveJSON('aze_password_best', best);
+        }
+
+        scoreEl.textContent = 'Passed: ' + evalRes.passedCount + ' / 12';
+        metaEl.textContent = 'Length: ' + val.length + ' · Digit Sum: ' + evalRes.digitSum + ' / 25';
+        if (evalRes.allPassed) {
+          if (winEl.style.display === 'none') SoundFX.chime();
+          winEl.style.display = 'flex';
+        } else {
+          winEl.style.display = 'none';
+        }
+
+        var visible = evalRes.rules.slice(0, unlockedCount);
+        visible.sort(function (a, b) {
+          if (a.pass === b.pass) return b.id - a.id;
+          return a.pass ? 1 : -1;
+        });
+
+        rulesEl.innerHTML = visible.map(function (r) {
+          var newlyPassed = r.pass && !prevPassIds[r.id];
+          prevPassIds[r.id] = r.pass;
+          return (
+            '<div class="rule-item ' + (r.pass ? 'pass' : 'fail') + (newlyPassed ? ' pop-in' : '') + '">' +
+              '<div><strong>Rule ' + r.id + ':</strong> ' + r.text + '</div>' +
+              '<span class="rule-status">' + (r.pass ? '✓ PASS' : '✕ NEEDED') + '</span>' +
+            '</div>'
+          );
+        }).join('');
+      }
+
+      inputEl.addEventListener('input', update);
+      update();
+      return null;
+    };
+
+    /* 4. DRAW A PERFECT CIRCLE (with 95%+ confetti burst!) */
+    GAME_BUILDERS.circle = function (mount) {
+      var best = loadJSON('aze_circle_best', 0);
+      var drawing = false;
+      var points = [];
+      var confetti = [];
+      var confettiRaf = null;
+
+      mount.innerHTML =
+        '<div class="space-between" style="margin-bottom:12px;">' +
+          '<div>' +
+            '<div class="muted-text">Draw a continuous circle around the center dot.</div>' +
+            '<div id="circFeedback" style="font-weight:800;margin-top:2px;">Click and drag to draw</div>' +
+          '</div>' +
+          '<div class="row-wrap">' +
+            '<div class="tabular" style="font-size:1.6rem;font-weight:900;" id="circScore">0.0%</div>' +
+            '<div class="tabular muted-text" id="circBest">Best: ' + best.toFixed(1) + '%</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="canvas-frame"><canvas class="circle-canvas" id="circCanvas" data-testid="circle-canvas"></canvas></div>';
+
+      var canvas = mount.querySelector('#circCanvas');
+      var ctx = canvas.getContext('2d');
+      var scoreEl = mount.querySelector('#circScore');
+      var bestEl = mount.querySelector('#circBest');
+      var fbEl = mount.querySelector('#circFeedback');
+
+      function getColors() {
+        var cs = getComputedStyle(document.documentElement);
+        return {
+          ink: cs.getPropertyValue('--ink').trim() || '#0a0a0a',
+          muted: cs.getPropertyValue('--ink-muted').trim() || '#666666'
+        };
+      }
+
+      function getCenter() {
+        return { x: canvas.clientWidth / 2, y: canvas.clientHeight / 2 };
+      }
+
+      function resizeCanvas() {
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.max(300, canvas.clientWidth * dpr);
+        canvas.height = Math.max(300, canvas.clientHeight * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        redraw();
+      }
+
+      function redraw() {
+        var w = canvas.clientWidth;
+        var h = canvas.clientHeight;
+        var col = getColors();
+        ctx.clearRect(0, 0, w, h);
+        var c = getCenter();
+
+        // Precision visual crosshair & concentric guide rings
+        ctx.strokeStyle = col.muted;
+        ctx.globalAlpha = 0.25;
+        ctx.lineWidth = 1;
+        [75, 135].forEach(function (rad) {
+          ctx.beginPath();
+          ctx.setLineDash([4, 6]);
+          ctx.arc(c.x, c.y, rad, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(c.x - 18, c.y); ctx.lineTo(c.x + 18, c.y);
+        ctx.moveTo(c.x, c.y - 18); ctx.lineTo(c.x, c.y + 18);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        ctx.fillStyle = col.ink;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (points.length >= 2) {
+          var res = Core.scorePerfectCircle(points, c);
+          var meanR = res.meanR || Math.hypot(points[0].x - c.x, points[0].y - c.y);
+
+          if (!drawing && res.valid && res.meanR) {
+            ctx.strokeStyle = col.muted;
+            ctx.globalAlpha = 0.35;
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, res.meanR, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.globalAlpha = 1;
+          }
+
+          ctx.lineWidth = 4;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (var i = 1; i < points.length; i++) {
+            var p0 = points[i - 1];
+            var p1 = points[i];
+            var r = Math.hypot(p1.x - c.x, p1.y - c.y);
+            var err = meanR ? Math.abs(r - meanR) / meanR : 0;
+            ctx.strokeStyle = err < 0.06 ? '#16a34a' : (err < 0.14 ? '#d97706' : '#dc2626');
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+          }
+        }
+
+        // Confetti overlay
+        for (var k = 0; k < confetti.length; k++) {
+          var cf = confetti[k];
+          ctx.fillStyle = cf.color;
+          ctx.fillRect(cf.x, cf.y, cf.size, cf.size);
+        }
+      }
+
+      function launchConfetti() {
+        var c = getCenter();
+        var col = getColors();
+        confetti = [];
+        for (var i = 0; i < 65; i++) {
+          var a = Math.random() * Math.PI * 2;
+          var sp = 80 + Math.random() * 260;
+          confetti.push({
+            x: c.x, y: c.y,
+            vx: Math.cos(a) * sp,
+            vy: Math.sin(a) * sp - 90,
+            size: 4 + Math.random() * 4,
+            color: i % 2 === 0 ? col.ink : '#16a34a',
+            life: 1.4
+          });
+        }
+        var last = performance.now();
+        function step(now) {
+          var dt = Math.min(0.05, (now - last) / 1000);
+          last = now;
+          for (var i = confetti.length - 1; i >= 0; i--) {
+            confetti[i].x += confetti[i].vx * dt;
+            confetti[i].y += confetti[i].vy * dt;
+            confetti[i].vy += 320 * dt;
+            confetti[i].life -= dt;
+            if (confetti[i].life <= 0) confetti.splice(i, 1);
+          }
+          redraw();
+          if (confetti.length > 0) confettiRaf = requestAnimationFrame(step);
+          else confettiRaf = null;
+        }
+        if (confettiRaf) cancelAnimationFrame(confettiRaf);
+        confettiRaf = requestAnimationFrame(step);
+      }
+
+      function getPos(e) {
+        var rect = canvas.getBoundingClientRect();
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      }
+
+      canvas.addEventListener('pointerdown', function (e) {
+        drawing = true;
+        confetti = [];
+        points = [getPos(e)];
+        if (canvas.setPointerCapture) {
+          try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+        }
+        fbEl.textContent = 'Keep going...';
+        scoreEl.textContent = '0.0%';
+        redraw();
+      });
+
+      canvas.addEventListener('pointermove', function (e) {
+        if (!drawing) return;
+        var pt = getPos(e);
+        var last = points[points.length - 1];
+        if (!last || Math.hypot(pt.x - last.x, pt.y - last.y) >= 3) {
+          points.push(pt);
+          var res = Core.scorePerfectCircle(points, getCenter());
+          if (res.valid) scoreEl.textContent = res.score.toFixed(1) + '%';
+          redraw();
+        }
+      });
+
+      function finishStroke() {
+        if (!drawing) return;
+        drawing = false;
+        var res = Core.scorePerfectCircle(points, getCenter());
+        scoreEl.textContent = res.score.toFixed(1) + '%';
+        fbEl.textContent = res.feedback;
+        if (res.valid) {
+          if (res.score >= 95) {
+            SoundFX.chime();
+            launchConfetti();
+          } else if (res.score > best) {
+            SoundFX.chime();
+          } else {
+            SoundFX.pop();
+          }
+          if (res.score > best) {
+            best = res.score;
+            saveJSON('aze_circle_best', best);
+            bestEl.textContent = 'Best: ' + best.toFixed(1) + '%';
+          }
+        } else {
+          SoundFX.buzz();
+        }
+        redraw();
+      }
+
+      canvas.addEventListener('pointerup', finishStroke);
+      canvas.addEventListener('pointercancel', finishStroke);
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      return function cleanup() {
+        if (confettiRaf) cancelAnimationFrame(confettiRaf);
+        window.removeEventListener('resize', resizeCanvas);
+      };
+    };
+
+    /* 5. REACTION & CLICK SPEED LAB */
+    GAME_BUILDERS.reaction = function (mount) {
+      var mode = 'reflex';
+      var reflexState = 'idle';
+      var reflexTimer = null;
+      var goTimestamp = 0;
+      var reflexHistory = [];
+      var bestMs = loadJSON('aze_reflex_best', 0);
+
+      var cpsState = 'idle';
+      var cpsClicks = 0;
+      var cpsEndTime = 0;
+      var cpsRaf = null;
+      var bestCps = loadJSON('aze_cps_best', 0);
+
+      mount.innerHTML =
+        '<div class="space-between" style="margin-bottom:16px;">' +
+          '<div class="segmented" role="group" aria-label="Speed Lab Mode">' +
+            '<button type="button" id="tabReflex" aria-pressed="true">Reflex Timer (ms)</button>' +
+            '<button type="button" id="tabCps" aria-pressed="false">10s CPS Speed Test</button>' +
+          '</div>' +
+          '<div class="tabular muted-text" id="labBestSummary"></div>' +
+        '</div>' +
+        '<div id="labBody"></div>';
+
+      var body = mount.querySelector('#labBody');
+      var tabReflex = mount.querySelector('#tabReflex');
+      var tabCps = mount.querySelector('#tabCps');
+      var bestSummary = mount.querySelector('#labBestSummary');
+
+      function updateBestText() {
+        bestSummary.textContent = 'Best Reflex: ' + (bestMs ? bestMs + ' ms' : '—') + ' · Best CPS: ' + (bestCps ? bestCps.toFixed(1) : '—');
+      }
+
+      function clearTimers() {
+        if (reflexTimer) { clearTimeout(reflexTimer); reflexTimer = null; }
+        if (cpsRaf) { cancelAnimationFrame(cpsRaf); cpsRaf = null; }
+      }
+
+      function renderReflex() {
+        var avg = reflexHistory.length ? Math.round(reflexHistory.reduce(function (a, b) { return a + b; }, 0) / reflexHistory.length) : 0;
+        var stateClass = reflexState === 'waiting' ? 'state-wait' : (reflexState === 'go' ? 'state-go' : '');
+        var title = 'Click to Start Reflex Test';
+        var sub = 'Wait for the pad to invert solid, then click immediately.';
+        if (reflexState === 'waiting') { title = 'Wait for Flash...'; sub = 'Steady — do not click early!'; }
+        else if (reflexState === 'go') { title = 'CLICK NOW!'; sub = 'React!'; }
+        else if (reflexState === 'tooSoon') { title = 'Too Soon!'; sub = 'Click to restart attempt.'; }
+        else if (reflexState === 'done') {
+          title = reflexHistory[reflexHistory.length - 1] + ' ms';
+          sub = 'Click to test again · 5-round Avg: ' + avg + ' ms';
+        }
+
+        body.innerHTML =
+          '<button type="button" class="lab-pad ' + stateClass + '" id="reflexPad">' +
+            '<span class="tabular" style="font-size:2.4rem;font-weight:900;">' + title + '</span>' +
+            '<span class="muted-text">' + sub + '</span>' +
+          '</button>' +
+          (reflexHistory.length ? '<div class="muted-text tabular" style="margin-top:12px;">Recent: ' + reflexHistory.join(' ms, ') + ' ms</div>' : '');
+
+        body.querySelector('#reflexPad').addEventListener('pointerdown', function () {
+          if (reflexState === 'idle' || reflexState === 'done' || reflexState === 'tooSoon') {
+            SoundFX.click();
+            reflexState = 'waiting';
+            renderReflex();
+            reflexTimer = setTimeout(function () {
+              reflexState = 'go';
+              goTimestamp = performance.now();
+              SoundFX.pop();
+              renderReflex();
+            }, 1300 + Math.random() * 2400);
+          } else if (reflexState === 'waiting') {
+            clearTimeout(reflexTimer);
+            reflexTimer = null;
+            reflexState = 'tooSoon';
+            SoundFX.buzz();
+            renderReflex();
+          } else if (reflexState === 'go') {
+            var ms = Math.max(1, Math.round(performance.now() - goTimestamp));
+            reflexHistory.push(ms);
+            if (reflexHistory.length > 5) reflexHistory.shift();
+            if (!bestMs || ms < bestMs) {
+              bestMs = ms;
+              saveJSON('aze_reflex_best', bestMs);
+              SoundFX.chime();
+            } else {
+              SoundFX.pickup();
+            }
+            reflexState = 'done';
+            updateBestText();
+            renderReflex();
+          }
+        });
+      }
+
+      function renderCps() {
+        var finalCps = cpsClicks / 10;
+        var rank = Core.getCpsRank(finalCps);
+        body.innerHTML =
+          '<button type="button" class="lab-pad ' + (cpsState === 'running' ? 'state-go' : '') + '" id="cpsPad">' +
+            '<span class="tabular" style="font-size:2.4rem;font-weight:900;" id="cpsMain">' +
+              (cpsState === 'idle' ? 'Start 10s Click Test' : (cpsState === 'running' ? cpsClicks + ' Clicks' : finalCps.toFixed(1) + ' CPS')) +
+            '</span>' +
+            '<span class="tabular muted-text" id="cpsSub">' +
+              (cpsState === 'idle' ? 'Click rapidly for 10 seconds to unlock your rank badge.' :
+                (cpsState === 'running' ? '10.0s remaining' : 'Click pad to try again')) +
+            '</span>' +
+          '</button>' +
+          (cpsState === 'done'
+            ? '<div class="rank-card pop-in">' + getRankSvg(rank.id) + '<div><div style="font-weight:900;font-size:1.1rem;">Rank: ' + rank.title + '</div><div class="muted-text">' + rank.note + '</div></div></div>'
+            : '');
+
+        var pad = body.querySelector('#cpsPad');
+        var mainEl = body.querySelector('#cpsMain');
+        var subEl = body.querySelector('#cpsSub');
+
+        function tick() {
+          var rem = Math.max(0, (cpsEndTime - performance.now()) / 1000);
+          var curCps = cpsClicks / Math.max(0.1, 10 - rem);
+          if (rem > 0) {
+            subEl.textContent = rem.toFixed(1) + 's left · Live: ' + curCps.toFixed(1) + ' CPS';
+            cpsRaf = requestAnimationFrame(tick);
+          } else {
+            cpsState = 'done';
+            var scoreCps = Math.round((cpsClicks / 10) * 10) / 10;
+            if (scoreCps > bestCps) {
+              bestCps = scoreCps;
+              saveJSON('aze_cps_best', bestCps);
+              SoundFX.chime();
+            } else {
+              SoundFX.pop();
+            }
+            updateBestText();
+            renderCps();
+          }
+        }
+
+        pad.addEventListener('pointerdown', function () {
+          if (cpsState === 'idle' || cpsState === 'done') {
+            cpsState = 'running';
+            cpsClicks = 1;
+            cpsEndTime = performance.now() + 10000;
+            SoundFX.click();
+            mainEl.textContent = '1 Click';
+            cpsRaf = requestAnimationFrame(tick);
+          } else if (cpsState === 'running') {
+            cpsClicks++;
+            SoundFX.click();
+            mainEl.textContent = cpsClicks + ' Clicks';
+          }
+        });
+      }
+
+      tabReflex.addEventListener('click', function () {
+        clearTimers();
+        mode = 'reflex'; reflexState = 'idle';
+        tabReflex.setAttribute('aria-pressed', 'true');
+        tabCps.setAttribute('aria-pressed', 'false');
+        SoundFX.click();
+        renderReflex();
+      });
+
+      tabCps.addEventListener('click', function () {
+        clearTimers();
+        mode = 'cps'; cpsState = 'idle';
+        tabReflex.setAttribute('aria-pressed', 'false');
+        tabCps.setAttribute('aria-pressed', 'true');
+        SoundFX.click();
+        renderCps();
+      });
+
+      updateBestText();
+      renderReflex();
+      return function cleanup() { clearTimers(); };
+    };
+
+    /* 6. DEEP SEA TO OUTER SPACE EXPLORER */
+    GAME_BUILDERS.explorer = function (mount) {
+      var mode = 'sea';
+      var SEA_STOPS = [
+        { pct: 2, depth: '0 m', zone: 'Sunlight Zone', kind: 'wave', name: 'Ocean Surface', fact: 'Waves, sailboats, and 90% of marine photosynthesis.' },
+        { pct: 14, depth: '40 m', zone: 'Sunlight Zone', kind: 'tree', name: 'Coral Reef', fact: 'Supports 25% of all marine life across less than 1% of the ocean floor.' },
+        { pct: 28, depth: '200 m', zone: 'Twilight Zone', kind: 'fish', name: 'Blue Whale Dive', fact: 'The largest animal ever to exist, stretching up to 30 meters long.' },
+        { pct: 44, depth: '1,000 m', zone: 'Midnight Zone', kind: 'spiral', name: 'Giant Squid', fact: 'Uses dinner-plate eyes to hunt bioluminescent prey in near-total dark.' },
+        { pct: 62, depth: '3,800 m', zone: 'Abyssal Zone', kind: 'city', name: 'Deep Wreckage', fact: 'Rests at nearly 380 atmospheres of crushing ocean pressure.' },
+        { pct: 78, depth: '6,500 m', zone: 'Hadal Zone', kind: 'fish', name: 'Hadal Snailfish', fact: 'Translucent fish thriving deep inside oceanic subduction trenches.' },
+        { pct: 94, depth: '10,994 m', zone: 'Challenger Deep', kind: 'hole', name: 'Mariana Trench Bottom', fact: 'Deepest known point on Earth — deeper than Mount Everest is tall.' }
+      ];
+
+      var SPACE_STOPS = [
+        { pct: 94, depth: '0 km', zone: 'Launchpad', kind: 'rocket', name: 'Earth Launchpad', fact: 'Escape velocity from Earth requires 11.2 km every second.' },
+        { pct: 80, depth: '12 km', zone: 'Troposphere', kind: 'cloud', name: 'Jet Cruising Altitude', fact: 'Above most storm clouds and turbulent weather.' },
+        { pct: 65, depth: '100 km', zone: 'Kármán Line', kind: 'star', name: 'Edge of Space', fact: 'Official boundary where aeronautics yields to orbital flight.' },
+        { pct: 50, depth: '408 km', zone: 'Low Earth Orbit', kind: 'chip', name: 'Space Station Orbit', fact: 'Orbits Earth 16 times every 24 hours at 27,600 km/h.' },
+        { pct: 34, depth: '35,786 km', zone: 'Geostationary Orbit', kind: 'globe', name: 'Weather Satellites', fact: 'Matches Earth rotation so satellites hover over one longitude.' },
+        { pct: 18, depth: '384,400 km', zone: 'Lunar Orbit', kind: 'moon', name: 'The Moon', fact: 'Light takes 1.28 seconds to travel from Earth to the Moon.' },
+        { pct: 3, depth: '225,000,000 km', zone: 'Deep Space', kind: 'hole', name: 'Mars', fact: 'Home to Olympus Mons, a volcano three times taller than Everest.' }
+      ];
+
+      mount.innerHTML =
+        '<div class="space-between" style="margin-bottom:14px;">' +
+          '<div class="segmented" role="group" aria-label="Explorer Direction">' +
+            '<button type="button" id="expSeaBtn" aria-pressed="true">Deep Sea Dive</button>' +
+            '<button type="button" id="expSpaceBtn" aria-pressed="false">Outer Space Launch</button>' +
+          '</div>' +
+          '<div class="row-wrap">' +
+            '<button type="button" class="btn btn-ghost" id="expJumpStart">Start</button>' +
+            '<button type="button" class="btn btn-ghost" id="expJumpMid">Midpoint</button>' +
+            '<button type="button" class="btn btn-ghost" id="expJumpEnd">Destination</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="explorer-viewport" id="expViewport">' +
+          '<div class="explorer-hud">' +
+            '<strong id="expHudZone">Sunlight Zone</strong>' +
+            '<span class="tabular" id="expHudDepth">0 m</span>' +
+          '</div>' +
+          '<div class="explorer-column" id="expCol" style="height:2400px;"></div>' +
+        '</div>';
+
+      var vp = mount.querySelector('#expViewport');
+      var col = mount.querySelector('#expCol');
+      var zoneEl = mount.querySelector('#expHudZone');
+      var depthEl = mount.querySelector('#expHudDepth');
+      var seaBtn = mount.querySelector('#expSeaBtn');
+      var spaceBtn = mount.querySelector('#expSpaceBtn');
+
+      function renderExplorer() {
+        var stops = mode === 'sea' ? SEA_STOPS : SPACE_STOPS;
+        col.style.background = mode === 'sea'
+          ? 'linear-gradient(180deg, #e5e5e5 0%, #737373 25%, #262626 60%, #0a0a0a 100%)'
+          : 'linear-gradient(180deg, #0a0a0a 0%, #171717 45%, #525252 80%, #d4d4d4 100%)';
+
+        col.innerHTML = stops.map(function (s) {
+          return (
+            '<div class="explorer-milestone" style="top:' + s.pct + '%;">' +
+              '<div style="width:44px;height:44px;border:2px solid #fff;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;">' +
+                getElementSvg(s.kind, 26) +
+              '</div>' +
+              '<div>' +
+                '<div class="tabular" style="font-size:0.78rem;color:#d4d4d4;font-weight:700;">' + s.depth + ' · ' + s.zone + '</div>' +
+                '<div style="font-weight:800;font-size:1.05rem;">' + s.name + '</div>' +
+                '<div style="font-size:0.86rem;color:#d4d4d4;">' + s.fact + '</div>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        vp.scrollTop = mode === 'sea' ? 0 : (col.scrollHeight - vp.clientHeight);
+        updateHud();
+      }
+
+      function updateHud() {
+        var maxScroll = Math.max(1, col.scrollHeight - vp.clientHeight);
+        var ratio = Math.max(0, Math.min(1, vp.scrollTop / maxScroll));
+        if (mode === 'sea') {
+          var meters = Math.round(ratio * 10994);
+          depthEl.textContent = meters.toLocaleString('en-US') + ' m';
+          zoneEl.textContent = meters < 200 ? 'Sunlight Zone' : (meters < 1000 ? 'Twilight Zone' : (meters < 4000 ? 'Midnight Zone' : 'Hadal Trench'));
+        } else {
+          var upRatio = 1 - ratio;
+          var km = upRatio < 0.5 ? Math.round(upRatio * 1000) : Math.round(Math.pow(upRatio, 4) * 225000000);
+          depthEl.textContent = km.toLocaleString('en-US') + ' km';
+          zoneEl.textContent = upRatio < 0.15 ? 'Atmosphere' : (upRatio < 0.45 ? 'Earth Orbit' : (upRatio < 0.78 ? 'Lunar Transit' : 'Deep Space · Mars'));
+        }
+      }
+
+      vp.addEventListener('scroll', updateHud);
+      seaBtn.addEventListener('click', function () {
+        mode = 'sea'; seaBtn.setAttribute('aria-pressed', 'true'); spaceBtn.setAttribute('aria-pressed', 'false');
+        SoundFX.click(); renderExplorer();
+      });
+      spaceBtn.addEventListener('click', function () {
+        mode = 'space'; seaBtn.setAttribute('aria-pressed', 'false'); spaceBtn.setAttribute('aria-pressed', 'true');
+        SoundFX.click(); renderExplorer();
+      });
+      mount.querySelector('#expJumpStart').addEventListener('click', function () {
+        SoundFX.click(); vp.scrollTop = mode === 'sea' ? 0 : col.scrollHeight;
+      });
+      mount.querySelector('#expJumpMid').addEventListener('click', function () {
+        SoundFX.click(); vp.scrollTop = (col.scrollHeight - vp.clientHeight) / 2;
+      });
+      mount.querySelector('#expJumpEnd').addEventListener('click', function () {
+        SoundFX.click(); vp.scrollTop = mode === 'sea' ? col.scrollHeight : 0;
+      });
+
+      renderExplorer();
+      return null;
+    };
+
+    /* 7. MONOCHROME PIXEL ART STUDIO */
+    GAME_BUILDERS.pixel = function (mount) {
+      var SIZE = 16;
+      var PALETTE = ['#0a0a0a', '#262626', '#525252', '#737373', '#a3a3a3', '#d4d4d4', '#ededed', '#ffffff'];
+      var grid = new Array(SIZE * SIZE).fill('#ffffff');
+      var activeColor = '#0a0a0a';
+      var tool = 'draw';
+      var mirror = false;
+      var painting = false;
+
+      mount.innerHTML =
+        '<div class="pixel-studio-grid">' +
+          '<canvas class="pixel-canvas" id="pxCanvas" width="320" height="320" data-testid="pixel-canvas"></canvas>' +
+          '<div style="display:flex;flex-direction:column;gap:14px;">' +
+            '<div>' +
+              '<div style="font-weight:800;margin-bottom:8px;">Tools</div>' +
+              '<div class="row-wrap">' +
+                '<button type="button" class="btn btn-primary" data-px-tool="draw">Draw</button>' +
+                '<button type="button" class="btn btn-ghost" data-px-tool="erase">Erase</button>' +
+                '<button type="button" class="btn btn-ghost" data-px-tool="fill">Fill Bucket</button>' +
+                '<button type="button" class="btn btn-ghost" id="pxMirrorBtn" aria-pressed="false">Mirror: OFF</button>' +
+              '</div>' +
+            '</div>' +
+            '<div>' +
+              '<div style="font-weight:800;margin-bottom:8px;">Monochrome Shades</div>' +
+              '<div class="swatch-grid" id="pxSwatches"></div>' +
+            '</div>' +
+            '<div>' +
+              '<div style="font-weight:800;margin-bottom:8px;">Stamps &amp; Export</div>' +
+              '<div class="row-wrap">' +
+                '<button type="button" class="btn btn-ghost" id="pxPresetSkull">Skull Stamp</button>' +
+                '<button type="button" class="btn btn-ghost" id="pxPresetCheck">Checkerboard</button>' +
+                '<button type="button" class="btn btn-ghost" id="pxClear">Clear</button>' +
+                '<button type="button" class="btn btn-primary" id="pxDownload">Download PNG</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      var canvas = mount.querySelector('#pxCanvas');
+      var ctx = canvas.getContext('2d');
+      var swatches = mount.querySelector('#pxSwatches');
+
+      function drawGrid() {
+        var cell = canvas.width / SIZE;
+        for (var y = 0; y < SIZE; y++) {
+          for (var x = 0; x < SIZE; x++) {
+            ctx.fillStyle = grid[y * SIZE + x];
+            ctx.fillRect(x * cell, y * cell, cell, cell);
+          }
+        }
+        ctx.strokeStyle = 'rgba(10, 10, 10, 0.14)';
+        ctx.lineWidth = 1;
+        for (var i = 0; i <= SIZE; i++) {
+          ctx.beginPath(); ctx.moveTo(i * cell, 0); ctx.lineTo(i * cell, canvas.height); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(0, i * cell); ctx.lineTo(canvas.width, i * cell); ctx.stroke();
+        }
+      }
+
+      function renderSwatches() {
+        swatches.innerHTML = PALETTE.map(function (c) {
+          return '<button type="button" class="swatch-btn' + (c === activeColor ? ' active' : '') + '" data-color="' + c + '" style="background:' + c + ';" aria-label="Shade ' + c + '"></button>';
+        }).join('');
+      }
+
+      function paintAt(e) {
+        var rect = canvas.getBoundingClientRect();
+        var x = Math.floor(((e.clientX - rect.left) / rect.width) * SIZE);
+        var y = Math.floor(((e.clientY - rect.top) / rect.height) * SIZE);
+        if (x < 0 || y < 0 || x >= SIZE || y >= SIZE) return;
+        if (tool === 'fill') {
+          grid = Core.floodFillGrid(grid, SIZE, x, y, activeColor);
+          SoundFX.pop();
+        } else {
+          var col = tool === 'erase' ? '#ffffff' : activeColor;
+          grid[y * SIZE + x] = col;
+          if (mirror) grid[y * SIZE + (SIZE - 1 - x)] = col;
+        }
+        drawGrid();
+      }
+
+      canvas.addEventListener('pointerdown', function (e) {
+        painting = true;
+        if (canvas.setPointerCapture) { try { canvas.setPointerCapture(e.pointerId); } catch (err) {} }
+        paintAt(e);
+        if (tool !== 'fill') SoundFX.click();
+      });
+      canvas.addEventListener('pointermove', function (e) { if (painting && tool !== 'fill') paintAt(e); });
+      function onPointerUp() { painting = false; }
+      window.addEventListener('pointerup', onPointerUp);
+
+      function syncToolBtns() {
+        mount.querySelectorAll('[data-px-tool]').forEach(function (b) {
+          b.className = 'btn ' + (b.dataset.pxTool === tool ? 'btn-primary' : 'btn-ghost');
+        });
+      }
+
+      swatches.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-color]');
+        if (!b) return;
+        activeColor = b.dataset.color;
+        if (tool === 'erase') { tool = 'draw'; syncToolBtns(); }
+        SoundFX.click();
+        renderSwatches();
+      });
+
+      mount.querySelectorAll('[data-px-tool]').forEach(function (b) {
+        b.addEventListener('click', function () { tool = b.dataset.pxTool; SoundFX.click(); syncToolBtns(); });
+      });
+
+      var mirrorBtn = mount.querySelector('#pxMirrorBtn');
+      mirrorBtn.addEventListener('click', function () {
+        mirror = !mirror;
+        mirrorBtn.setAttribute('aria-pressed', mirror ? 'true' : 'false');
+        mirrorBtn.textContent = 'Mirror: ' + (mirror ? 'ON' : 'OFF');
+        SoundFX.click();
+      });
+
+      mount.querySelector('#pxPresetSkull').addEventListener('click', function () {
+        var art = [
+          '................',
+          '....XXXXXXXX....',
+          '...XXXXXXXXXX...',
+          '..XXXXXXXXXXXX..',
+          '..XXXXXXXXXXXX..',
+          '..XX...XX...XX..',
+          '..XX...XX...XX..',
+          '..XXXXXXXXXXXX..',
+          '...XXXX..XXXX...',
+          '...XXXXXXXXXX...',
+          '....XX.XX.XX....',
+          '....XX.XX.XX....',
+          '................',
+          '................',
+          '................',
+          '................'
+        ];
+        for (var y = 0; y < SIZE; y++) {
+          for (var x = 0; x < SIZE; x++) {
+            grid[y * SIZE + x] = art[y][x] === 'X' ? '#0a0a0a' : '#ffffff';
+          }
+        }
+        SoundFX.pop();
+        drawGrid();
+      });
+
+      mount.querySelector('#pxPresetCheck').addEventListener('click', function () {
+        for (var y = 0; y < SIZE; y++) {
+          for (var x = 0; x < SIZE; x++) {
+            grid[y * SIZE + x] = ((x + y) % 2 === 0) ? '#0a0a0a' : '#ffffff';
+          }
+        }
+        SoundFX.pop();
+        drawGrid();
+      });
+
+      mount.querySelector('#pxClear').addEventListener('click', function () {
+        grid = new Array(SIZE * SIZE).fill('#ffffff');
+        SoundFX.click();
+        drawGrid();
+      });
+
+      mount.querySelector('#pxDownload').addEventListener('click', function () {
+        var out = document.createElement('canvas');
+        out.width = 512; out.height = 512;
+        var octx = out.getContext('2d');
+        var cell = 512 / SIZE;
+        for (var y = 0; y < SIZE; y++) {
+          for (var x = 0; x < SIZE; x++) {
+            octx.fillStyle = grid[y * SIZE + x];
+            octx.fillRect(x * cell, y * cell, cell, cell);
+          }
+        }
+        var link = document.createElement('a');
+        link.download = 'aze-monochrome-art.png';
+        link.href = out.toDataURL('image/png');
+        link.click();
+        SoundFX.chime();
+      });
+
+      renderSwatches();
+      drawGrid();
+      return function cleanup() { window.removeEventListener('pointerup', onPointerUp); };
+    };
+
+    /* 8. LIFE STATS LIVE COUNTER */
+    GAME_BUILDERS.lifestats = function (mount) {
+      var saved = loadJSON('aze_birthday', '2000-01-01');
+      var intervalId = null;
+
+      mount.innerHTML =
+        '<div class="space-between">' +
+          '<div class="row-wrap">' +
+            '<label for="lifeDateInput" style="font-weight:800;">Your Birthday:</label>' +
+            '<input id="lifeDateInput" type="date" class="input-field" style="width:auto;" value="' + saved + '" />' +
+          '</div>' +
+          '<div class="row-wrap">' +
+            '<button type="button" class="btn btn-ghost" data-preset="1995-06-15">1995</button>' +
+            '<button type="button" class="btn btn-ghost" data-preset="2000-01-01">2000</button>' +
+            '<button type="button" class="btn btn-ghost" data-preset="2006-09-10">2006</button>' +
+          '</div>' +
+        '</div>' +
+        '<div id="lifeStatsOut"></div>';
+
+      var input = mount.querySelector('#lifeDateInput');
+      var out = mount.querySelector('#lifeStatsOut');
+
+      function render() {
+        var stats = Core.calculateLifeStats(input.value, new Date());
+        if (!stats) {
+          out.innerHTML = '<div class="muted-text" style="margin-top:16px;">Select a valid birth date to start live counters.</div>';
+          return;
+        }
+        if (stats.future) {
+          out.innerHTML = '<div class="muted-text" style="margin-top:16px;">That date is in the future — pick a past birthday!</div>';
+          return;
+        }
+
+        out.innerHTML =
+          '<div class="stats-grid">' +
+            '<div class="stat-tile"><div class="muted-text">Exact Age</div><div class="stat-value tabular">' + stats.years.toFixed(6) + ' yrs</div><div class="muted-text tabular">' + stats.days.toLocaleString('en-US') + ' days on Earth</div></div>' +
+            '<div class="stat-tile"><div class="muted-text">Heartbeats Taken</div><div class="stat-value tabular">' + stats.heartbeats.toLocaleString('en-US') + '</div><div class="muted-text">~72 beats every minute</div></div>' +
+            '<div class="stat-tile"><div class="muted-text">Breaths Taken</div><div class="stat-value tabular">' + stats.breaths.toLocaleString('en-US') + '</div><div class="muted-text">~' + Math.max(1, stats.olympicPoolsAir) + ' Olympic pools of air</div></div>' +
+            '<div class="stat-tile"><div class="muted-text">Times Blinked</div><div class="stat-value tabular">' + stats.blinks.toLocaleString('en-US') + '</div><div class="muted-text">Waking hours estimated</div></div>' +
+            '<div class="stat-tile"><div class="muted-text">Solar Orbit Distance</div><div class="stat-value tabular">' + stats.sunDistanceKm.toLocaleString('en-US') + ' km</div><div class="muted-text">Equal to ' + stats.moonRoundTrips + ' Moon round-trips</div></div>' +
+            '<div class="stat-tile"><div class="muted-text">Next Birthday</div><div class="stat-value tabular">' + stats.daysToBirthday + ' days</div><div class="muted-text tabular">' + stats.seconds.toLocaleString('en-US') + ' total seconds lived</div></div>' +
+          '</div>';
+      }
+
+      input.addEventListener('change', function () {
+        saveJSON('aze_birthday', input.value); SoundFX.click(); render();
+      });
+      mount.querySelectorAll('[data-preset]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          input.value = btn.dataset.preset;
+          saveJSON('aze_birthday', input.value); SoundFX.click(); render();
+        });
+      });
+
+      render();
+      intervalId = setInterval(render, 120);
+      return function cleanup() { if (intervalId) clearInterval(intervalId); };
+    };
+
+    /* 9. AMBIENT SOUNDBOARD MIXER */
+    GAME_BUILDERS.mixer = function (mount) {
+      var CHANNELS = [
+        { id: 'rain', name: 'Rain', kind: 'rain', desc: 'Filtered pink-noise rainfall', level: 45 },
+        { id: 'thunder', name: 'Thunder', kind: 'bolt', desc: 'Deep sub-bass storm rumble', level: 0 },
+        { id: 'lofi', name: 'Lo-Fi Vinyl Crackle', kind: 'note', desc: 'Warm chord hum + vinyl dust pops', level: 35 },
+        { id: 'fire', name: 'Campfire', kind: 'flame', desc: 'Crackling wood embers', level: 0 },
+        { id: 'wind', name: 'Wind', kind: 'wind', desc: 'Sweeping canyon breeze', level: 20 },
+        { id: 'synth', name: 'Deep Synth', kind: 'spiral', desc: 'Atmospheric harmonic drone', level: 0 }
+      ];
+
+      var running = false;
+      var activeNodes = [];
+      var gains = {};
+
+      mount.innerHTML =
+        '<div class="space-between">' +
+          '<div class="row-wrap">' +
+            '<button type="button" class="btn btn-primary" id="mixPowerBtn">▶ Start Soundboard</button>' +
+            '<button type="button" class="btn btn-ghost" data-mix-preset="rainy">Rainy Night</button>' +
+            '<button type="button" class="btn btn-ghost" data-mix-preset="vinyl">Lo-Fi Study</button>' +
+            '<button type="button" class="btn btn-ghost" data-mix-preset="orbit">Deep Synth</button>' +
+          '</div>' +
+          '<div class="muted-text" id="mixStatus">Audio paused</div>' +
+        '</div>' +
+        '<div class="mixer-grid" id="mixGrid"></div>';
+
+      var powerBtn = mount.querySelector('#mixPowerBtn');
+      var statusEl = mount.querySelector('#mixStatus');
+      var gridEl = mount.querySelector('#mixGrid');
+
+      function stopAudio() {
+        running = false;
+        activeNodes.forEach(function (n) {
+          try { if (n.stop) n.stop(); } catch (e) {}
+          try { n.disconnect(); } catch (e) {}
+        });
+        activeNodes = [];
+        gains = {};
+        powerBtn.textContent = '▶ Start Soundboard';
+        statusEl.textContent = 'Audio paused';
+      }
+
+      function makeNoiseBuffer(ac, seconds, mode) {
+        var len = ac.sampleRate * seconds;
+        var buf = ac.createBuffer(1, len, ac.sampleRate);
+        var data = buf.getChannelData(0);
+        var b0 = 0, b1 = 0, b2 = 0;
+        for (var i = 0; i < len; i++) {
+          var white = Math.random() * 2 - 1;
+          if (mode === 'pink') {
+            b0 = 0.997 * b0 + white * 0.029;
+            b1 = 0.985 * b1 + white * 0.032;
+            b2 = 0.950 * b2 + white * 0.048;
+            data[i] = (b0 + b1 + b2 + white * 0.12) * 0.45;
+          } else if (mode === 'crackle') {
+            data[i] = Math.random() < 0.0025 ? (Math.random() * 1.4 - 0.7) : (white * 0.015);
+          } else {
+            data[i] = white;
+          }
+        }
+        return buf;
+      }
+
+      function startAudio() {
+        var ac = SoundFX.getContext();
+        if (!ac) return;
+        stopAudio();
+        running = true;
+        powerBtn.textContent = '⏹ Stop Soundboard';
+        statusEl.textContent = 'Synthesizing live Web Audio';
+
+        var pinkBuf = makeNoiseBuffer(ac, 3, 'pink');
+        var whiteBuf = makeNoiseBuffer(ac, 2, 'white');
+        var crackleBuf = makeNoiseBuffer(ac, 3, 'crackle');
+
+        // Rain
+        var rainSrc = ac.createBufferSource(); rainSrc.buffer = pinkBuf; rainSrc.loop = true;
+        var rainFilter = ac.createBiquadFilter(); rainFilter.type = 'bandpass'; rainFilter.frequency.value = 1150; rainFilter.Q.value = 0.6;
+        var rainGain = ac.createGain();
+        rainSrc.connect(rainFilter); rainFilter.connect(rainGain); rainGain.connect(ac.destination);
+        rainSrc.start(); activeNodes.push(rainSrc, rainFilter, rainGain); gains.rain = rainGain;
+
+        // Thunder
+        var thSrc = ac.createBufferSource(); thSrc.buffer = pinkBuf; thSrc.loop = true;
+        var thFilter = ac.createBiquadFilter(); thFilter.type = 'lowpass'; thFilter.frequency.value = 115;
+        var thGain = ac.createGain();
+        thSrc.connect(thFilter); thFilter.connect(thGain); thGain.connect(ac.destination);
+        thSrc.start(); activeNodes.push(thSrc, thFilter, thGain); gains.thunder = thGain;
+
+        // Lo-Fi Vinyl Crackle + Warm Chord
+        var lofiGain = ac.createGain(); lofiGain.connect(ac.destination);
+        var crkSrc = ac.createBufferSource(); crkSrc.buffer = crackleBuf; crkSrc.loop = true;
+        var crkFilter = ac.createBiquadFilter(); crkFilter.type = 'highpass'; crkFilter.frequency.value = 1800;
+        crkSrc.connect(crkFilter); crkFilter.connect(lofiGain); crkSrc.start();
+        activeNodes.push(crkSrc, crkFilter, lofiGain);
+        [130.81, 164.81, 196.0].forEach(function (freq) {
+          var osc = ac.createOscillator(); var g = ac.createGain();
+          osc.type = 'triangle'; osc.frequency.value = freq; g.gain.value = 0.04;
+          osc.connect(g); g.connect(lofiGain); osc.start(); activeNodes.push(osc, g);
+        });
+        gains.lofi = lofiGain;
+
+        // Campfire
+        var fireSrc = ac.createBufferSource(); fireSrc.buffer = whiteBuf; fireSrc.loop = true;
+        var fireFilter = ac.createBiquadFilter(); fireFilter.type = 'bandpass'; fireFilter.frequency.value = 600; fireFilter.Q.value = 1.9;
+        var fireGain = ac.createGain();
+        fireSrc.connect(fireFilter); fireFilter.connect(fireGain); fireGain.connect(ac.destination);
+        fireSrc.start(); activeNodes.push(fireSrc, fireFilter, fireGain); gains.fire = fireGain;
+
+        // Wind
+        var windSrc = ac.createBufferSource(); windSrc.buffer = pinkBuf; windSrc.loop = true;
+        var windFilter = ac.createBiquadFilter(); windFilter.type = 'bandpass'; windFilter.frequency.value = 420; windFilter.Q.value = 2.4;
+        var windLfo = ac.createOscillator(); var windLfoG = ac.createGain();
+        windLfo.frequency.value = 0.14; windLfoG.gain.value = 220;
+        windLfo.connect(windLfoG); windLfoG.connect(windFilter.frequency);
+        var windGain = ac.createGain();
+        windSrc.connect(windFilter); windFilter.connect(windGain); windGain.connect(ac.destination);
+        windSrc.start(); windLfo.start();
+        activeNodes.push(windSrc, windFilter, windLfo, windLfoG, windGain); gains.wind = windGain;
+
+        // Deep Synth
+        var synthGain = ac.createGain();
+        var synthFilter = ac.createBiquadFilter(); synthFilter.type = 'lowpass'; synthFilter.frequency.value = 480;
+        synthFilter.connect(synthGain); synthGain.connect(ac.destination);
+        [98, 147, 196.5].forEach(function (freq) {
+          var osc = ac.createOscillator(); var g = ac.createGain();
+          osc.type = 'sawtooth'; osc.frequency.value = freq; g.gain.value = 0.03;
+          osc.connect(g); g.connect(synthFilter); osc.start(); activeNodes.push(osc, g);
+        });
+        activeNodes.push(synthFilter, synthGain); gains.synth = synthGain;
+
+        applyVolumes();
+      }
+
+      function applyVolumes() {
+        CHANNELS.forEach(function (ch) {
+          if (gains[ch.id]) gains[ch.id].gain.value = (ch.level / 100) * 0.35;
+        });
+      }
+
+      function renderChannels() {
+        gridEl.innerHTML = CHANNELS.map(function (ch) {
+          return (
+            '<div class="mixer-channel">' +
+              '<div class="space-between">' +
+                '<label for="mix_' + ch.id + '" class="row-wrap" style="font-weight:800;">' + getElementSvg(ch.kind, 18) + '<span>' + ch.name + '</span></label>' +
+                '<span class="tabular" id="mixVal_' + ch.id + '">' + ch.level + '%</span>' +
+              '</div>' +
+              '<input id="mix_' + ch.id + '" type="range" min="0" max="100" value="' + ch.level + '" class="range-slider" data-ch="' + ch.id + '" />' +
+              '<div class="muted-text">' + ch.desc + '</div>' +
+            '</div>'
+          );
+        }).join('');
+      }
+
+      gridEl.addEventListener('input', function (e) {
+        var inp = e.target;
+        if (!inp.dataset.ch) return;
+        var ch = CHANNELS.find(function (c) { return c.id === inp.dataset.ch; });
+        if (!ch) return;
+        ch.level = parseInt(inp.value, 10);
+        mount.querySelector('#mixVal_' + ch.id).textContent = ch.level + '%';
+        if (!running && ch.level > 0) startAudio();
+        applyVolumes();
+      });
+
+      powerBtn.addEventListener('click', function () {
+        if (running) stopAudio();
+        else startAudio();
+      });
+
+      mount.querySelectorAll('[data-mix-preset]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var p = btn.dataset.mixPreset;
+          var map = p === 'rainy'
+            ? { rain: 70, thunder: 40, lofi: 25, fire: 0, wind: 20, synth: 0 }
+            : (p === 'vinyl'
+              ? { rain: 25, thunder: 0, lofi: 75, fire: 35, wind: 0, synth: 0 }
+              : { rain: 0, thunder: 15, lofi: 20, fire: 0, wind: 35, synth: 70 });
+          CHANNELS.forEach(function (c) { c.level = map[c.id] || 0; });
+          renderChannels();
+          if (!running) startAudio();
+          applyVolumes();
+          SoundFX.click();
+        });
+      });
+
+      renderChannels();
+      return function cleanup() { stopAudio(); };
+    };
+
+    /* 10. GEOMETRY DODGE DASH */
+    GAME_BUILDERS.dodge = function (mount, opts) {
+      var highScore = loadJSON('aze_dodge_best', 0);
+      var gameState = 'title';
+      var score = 0;
+      var elapsed = 0;
+      var orbsCollected = 0;
+      var rafId = null;
+      var lastTime = 0;
+      var hitstop = 0;
+      var trauma = 0;
+      var pointerTarget = null;
+      var keys = {};
+
+      mount.innerHTML =
+        '<div class="dodge-wrap">' +
+          '<canvas class="dodge-canvas" id="dodgeCanvas" data-testid="dodge-canvas"></canvas>' +
+          '<div class="dodge-hud">' +
+            '<div class="dodge-hud-group">' +
+              '<div><div style="font-size:0.7rem;color:#a3a3a3;">SCORE</div><div class="tabular" id="dodgeScore" style="font-size:1.3rem;font-weight:900;">0</div></div>' +
+              '<div><div style="font-size:0.7rem;color:#a3a3a3;">BEST</div><div class="tabular" id="dodgeBest" style="font-size:1.3rem;font-weight:900;">' + highScore + '</div></div>' +
+            '</div>' +
+            '<div class="dodge-hud-group" style="pointer-events:auto;padding:3px;">' +
+              '<button type="button" class="btn" id="dodgePauseBtn" style="min-height:32px;padding:4px 10px;font-size:0.8rem;background:#171717;color:#ffffff;border:1.5px solid #ffffff;">Pause [P]</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="dodge-overlay" id="dodgeOverlay">' +
+            '<div class="dodge-modal" id="dodgeModal">' +
+              '<h3 style="margin:0;font-size:1.5rem;font-weight:900;">Geometry Dodge Dash</h3>' +
+              '<p class="muted-text" style="margin:0;">Move with Arrow keys, WASD, or touch/drag. Dodge white hazards and collect hollow rings.</p>' +
+              '<button type="button" class="btn btn-primary" id="dodgeStartBtn" data-start="true">Start Run</button>' +
+              '<div class="muted-text" style="font-size:0.8rem;">Space / Enter to Start · P to Pause</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      var canvas = mount.querySelector('#dodgeCanvas');
+      var ctx = canvas.getContext('2d');
+      var scoreEl = mount.querySelector('#dodgeScore');
+      var bestEl = mount.querySelector('#dodgeBest');
+      var overlay = mount.querySelector('#dodgeOverlay');
+      var modal = mount.querySelector('#dodgeModal');
+      var pauseBtn = mount.querySelector('#dodgePauseBtn');
+
+      var player = { x: 320, y: 230, r: 13 };
+      var hazards = [];
+      var orbs = [];
+      var particles = [];
+      var spawnTimer = 0;
+      var orbTimer = 0;
+
+      function syncBodyState(st) { gameState = st; document.body.dataset.state = st; }
+
+      function resize() {
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.max(300, canvas.clientWidth * dpr);
+        canvas.height = Math.max(300, canvas.clientHeight * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        if (gameState === 'title') {
+          player.x = canvas.clientWidth / 2;
+          player.y = canvas.clientHeight / 2;
+        }
+      }
+
+      function spawnBurst(x, y, count) {
+        for (var i = 0; i < count; i++) {
+          var a = Math.random() * Math.PI * 2;
+          var sp = 60 + Math.random() * 210;
+          particles.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.4 + Math.random() * 0.25, maxLife: 0.65 });
+        }
+      }
+
+      function resetRun() {
+        player = { x: canvas.clientWidth / 2, y: canvas.clientHeight / 2, r: 13 };
+        hazards = []; orbs = []; particles = [];
+        score = 0; elapsed = 0; orbsCollected = 0;
+        spawnTimer = 0.6; orbTimer = 1.4; hitstop = 0; trauma = 0; pointerTarget = null;
+        scoreEl.textContent = '0';
+      }
+
+      function startRun(silent) {
+        resetRun();
+        syncBodyState('playing');
+        overlay.classList.add('hidden');
+        if (!silent) SoundFX.pop();
+        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      }
+
+      function showModal(mode) {
+        overlay.classList.remove('hidden');
+        if (mode === 'paused') {
+          modal.innerHTML =
+            '<h3 style="margin:0;font-size:1.45rem;font-weight:900;">Paused</h3>' +
+            '<div class="tabular muted-text">Score: ' + Math.floor(score) + '</div>' +
+            '<button type="button" class="btn btn-primary" id="dodgeResumeBtn">Resume</button>' +
+            '<button type="button" class="btn btn-ghost" id="dodgeRestartBtn" data-start="true">Restart Run</button>';
+          modal.querySelector('#dodgeResumeBtn').addEventListener('click', function () {
+            syncBodyState('playing'); overlay.classList.add('hidden');
+          });
+          modal.querySelector('#dodgeRestartBtn').addEventListener('click', function () { startRun(false); });
+        } else {
+          modal.innerHTML =
+            '<h3 style="margin:0;font-size:1.5rem;font-weight:900;">Run Ended</h3>' +
+            '<div class="tabular" style="font-size:2rem;font-weight:900;">' + Math.floor(score) + ' pts</div>' +
+            '<div class="tabular muted-text">Best: ' + highScore + ' · Orbs: ' + orbsCollected + '</div>' +
+            '<button type="button" class="btn btn-primary" id="dodgeRetryBtn" data-start="true">Play Again</button>' +
+            '<div class="muted-text" style="font-size:0.8rem;">Press Space or Enter to restart</div>';
+          modal.querySelector('#dodgeRetryBtn').addEventListener('click', function () { startRun(false); });
+        }
+      }
+
+      function spawnHazard() {
+        var w = canvas.clientWidth; var h = canvas.clientHeight;
+        var speedMult = 1 + Math.min(1.8, elapsed * 0.035);
+        var roll = Math.random();
+        if (roll < 0.42) {
+          var fromLeft = Math.random() < 0.5;
+          var bw = 64 + Math.random() * 64;
+          hazards.push({ type: 'bar', x: fromLeft ? -bw : w + 10, y: 20 + Math.random() * (h - 56), w: bw, h: 16, vx: (fromLeft ? 1 : -1) * (150 + Math.random() * 90) * speedMult, vy: 0 });
+        } else if (roll < 0.76) {
+          var top = Math.random() < 0.5;
+          var sx = 40 + Math.random() * (w - 80);
+          var ang = Math.atan2(player.y - (top ? -20 : h + 20), player.x - sx);
+          var sp = (195 + Math.random() * 75) * speedMult;
+          hazards.push({ type: 'shard', x: sx, y: top ? -20 : h + 20, w: 20, h: 20, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp });
+        } else {
+          hazards.push({ type: 'drone', x: Math.random() < 0.5 ? 26 : w - 26, y: 36 + Math.random() * (h - 72), w: 24, h: 24, vx: 0, vy: 0, windup: 0.65 });
+        }
+      }
+
+      function update(dt) {
+        var w = canvas.clientWidth; var h = canvas.clientHeight;
+        if (trauma > 0) trauma = Math.max(0, trauma - dt * 2.2);
+        if (hitstop > 0) { hitstop -= dt; return; }
+        for (var p = particles.length - 1; p >= 0; p--) {
+          particles[p].x += particles[p].vx * dt;
+          particles[p].y += particles[p].vy * dt;
+          particles[p].life -= dt;
+          if (particles[p].life <= 0) particles.splice(p, 1);
+        }
+        if (gameState !== 'playing') return;
+
+        elapsed += dt;
+        score += dt * 15;
+        scoreEl.textContent = String(Math.floor(score));
+
+        var moveSpeed = 335;
+        var ax = 0, ay = 0;
+        if (keys.ArrowLeft || keys.KeyA) ax -= 1;
+        if (keys.ArrowRight || keys.KeyD) ax += 1;
+        if (keys.ArrowUp || keys.KeyW) ay -= 1;
+        if (keys.ArrowDown || keys.KeyS) ay += 1;
+        if (ax !== 0 || ay !== 0) {
+          var mag = Math.hypot(ax, ay);
+          player.x += (ax / mag) * moveSpeed * dt;
+          player.y += (ay / mag) * moveSpeed * dt;
+        } else if (pointerTarget) {
+          var dx = pointerTarget.x - player.x;
+          var dy = pointerTarget.y - player.y;
+          var dist = Math.hypot(dx, dy);
+          if (dist > 4) {
+            var step = Math.min(dist, moveSpeed * 1.15 * dt);
+            player.x += (dx / dist) * step;
+            player.y += (dy / dist) * step;
+          }
+        }
+        player.x = Math.max(player.r + 4, Math.min(w - player.r - 4, player.x));
+        player.y = Math.max(player.r + 4, Math.min(h - player.r - 4, player.y));
+
+        spawnTimer -= dt;
+        if (spawnTimer <= 0) { spawnHazard(); spawnTimer = Math.max(0.28, 0.85 - elapsed * 0.015); }
+        orbTimer -= dt;
+        if (orbTimer <= 0) { orbs.push({ x: 34 + Math.random() * (w - 68), y: 44 + Math.random() * (h - 88), r: 10 }); orbTimer = 2.6; }
+
+        for (var o = orbs.length - 1; o >= 0; o--) {
+          if (Math.hypot(player.x - orbs[o].x, player.y - orbs[o].y) <= player.r + orbs[o].r) {
+            score += 25; orbsCollected++;
+            spawnBurst(orbs[o].x, orbs[o].y, 12);
+            SoundFX.pickup();
+            orbs.splice(o, 1);
+          }
+        }
+
+        for (var i = hazards.length - 1; i >= 0; i--) {
+          var hz = hazards[i];
+          if (hz.type === 'drone' && hz.windup > 0) {
+            hz.windup -= dt;
+            if (hz.windup <= 0) {
+              var ang = Math.atan2(player.y - hz.y, player.x - hz.x);
+              var sp = 320 + Math.min(200, elapsed * 6);
+              hz.vx = Math.cos(ang) * sp; hz.vy = Math.sin(ang) * sp;
+            }
+          } else { hz.x += hz.vx * dt; hz.y += hz.vy * dt; }
+
+          if (hz.x < -160 || hz.x > w + 160 || hz.y < -160 || hz.y > h + 160) { hazards.splice(i, 1); continue; }
+          if (Core.circleRectCollides(player.x, player.y, player.r - 2, hz.x, hz.y, hz.w, hz.h)) {
+            hitstop = 0.06; trauma = 0.85;
+            spawnBurst(player.x, player.y, 26);
+            SoundFX.buzz();
+            var finalScore = Math.floor(score);
+            if (finalScore > highScore) {
+              highScore = finalScore;
+              saveJSON('aze_dodge_best', highScore);
+              bestEl.textContent = String(highScore);
+            }
+            syncBodyState('gameover');
+            showModal('gameover');
+            return;
+          }
+        }
+      }
+
+      function render() {
+        var w = canvas.clientWidth; var h = canvas.clientHeight;
+        ctx.save();
+        if (trauma > 0) {
+          var shake = trauma * trauma * 10;
+          ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+        }
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 1;
+        for (var gx = 0; gx < w; gx += 40) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, h); ctx.stroke(); }
+        for (var gy = 0; gy < h; gy += 40) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke(); }
+
+        orbs.forEach(function (orb) {
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2); ctx.stroke();
+          ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(orb.x, orb.y, 3, 0, Math.PI * 2); ctx.fill();
+        });
+
+        hazards.forEach(function (hz) {
+          if (hz.type === 'drone' && hz.windup > 0) {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath(); ctx.moveTo(hz.x + hz.w / 2, hz.y + hz.h / 2); ctx.lineTo(player.x, player.y); ctx.stroke();
+            ctx.setLineDash([]);
+          }
+          ctx.fillStyle = hz.type === 'bar' ? '#ffffff' : (hz.type === 'drone' ? '#a3a3a3' : '#e5e5e5');
+          ctx.fillRect(hz.x, hz.y, hz.w, hz.h);
+          ctx.strokeStyle = '#0a0a0a'; ctx.lineWidth = 1.5; ctx.strokeRect(hz.x, hz.y, hz.w, hz.h);
+        });
+
+        particles.forEach(function (pt) {
+          ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(pt.x - 2.5, pt.y - 2.5, 5, 5);
+        });
+        ctx.globalAlpha = 1;
+
+        if (gameState !== 'gameover') {
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(player.x, player.y - player.r);
+          ctx.lineTo(player.x + player.r, player.y);
+          ctx.lineTo(player.x, player.y + player.r);
+          ctx.lineTo(player.x - player.r, player.y);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function loop(now) {
+        var rawDt = (now - lastTime) / 1000;
+        lastTime = now;
+        update(Math.min(0.05, Math.max(0, rawDt)));
+        render();
+        rafId = requestAnimationFrame(loop);
+      }
+
+      function onKeyDown(e) {
+        if (activeGameId !== 'dodge') return;
+        keys[e.code] = true;
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].indexOf(e.code) !== -1) e.preventDefault();
+        if ((e.code === 'Space' || e.code === 'Enter') && (gameState === 'title' || gameState === 'gameover')) startRun(false);
+        else if ((e.code === 'KeyP' || e.code === 'Escape') && gameState === 'playing') { syncBodyState('paused'); showModal('paused'); }
+        else if ((e.code === 'KeyP' || e.code === 'Escape') && gameState === 'paused') { syncBodyState('playing'); overlay.classList.add('hidden'); }
+      }
+      function onKeyUp(e) { keys[e.code] = false; }
+      function onBlur() { keys = {}; pointerTarget = null; }
+      function onPointerUp() { pointerTarget = null; }
+
+      canvas.addEventListener('pointerdown', function (e) {
+        if (gameState !== 'playing') return;
+        var rect = canvas.getBoundingClientRect();
+        pointerTarget = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      });
+      canvas.addEventListener('pointermove', function (e) {
+        if (gameState !== 'playing' || !pointerTarget) return;
+        var rect = canvas.getBoundingClientRect();
+        pointerTarget = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('keydown', onKeyDown);
+      window.addEventListener('keyup', onKeyUp);
+      window.addEventListener('blur', onBlur);
+      window.addEventListener('resize', resize);
+
+      mount.querySelector('#dodgeStartBtn').addEventListener('click', function () { startRun(false); });
+      pauseBtn.addEventListener('click', function () {
+        if (gameState === 'playing') { syncBodyState('paused'); showModal('paused'); }
+        else if (gameState === 'paused') { syncBodyState('playing'); overlay.classList.add('hidden'); }
+      });
+
+      syncBodyState('title');
+      resize();
+      if (opts && opts.autostart) startRun(true);
+      lastTime = performance.now();
+      rafId = requestAnimationFrame(loop);
+
+      return function cleanup() {
+        if (rafId) cancelAnimationFrame(rafId);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('keydown', onKeyDown);
+        window.removeEventListener('keyup', onKeyUp);
+        window.removeEventListener('blur', onBlur);
+        window.removeEventListener('resize', resize);
+      };
+    };
+
+    /* 11. GRAVITY SAND & PHYSICS SANDBOX */
+    GAME_BUILDERS.sand = function (mount) {
+      var GW = 140;
+      var GH = 90;
+      var grid = new Uint8Array(GW * GH);
+      var brush = 1; // 1=Sand, 2=Water, 3=Stone, 4=Fire, 5=Acid, 0=Erase
+      var brushRadius = 3;
+      var paused = false;
+      var drawing = false;
+      var pointerPos = null;
+      var tick = 0;
+      var rafId = null;
+
+      mount.innerHTML =
+        '<div class="space-between" style="margin-bottom:12px;">' +
+          '<div class="row-wrap" id="sandTools">' +
+            '<button type="button" class="btn btn-primary" data-mat="1">Sand</button>' +
+            '<button type="button" class="btn btn-ghost" data-mat="2">Water</button>' +
+            '<button type="button" class="btn btn-ghost" data-mat="3">Stone</button>' +
+            '<button type="button" class="btn btn-ghost" data-mat="4">Fire</button>' +
+            '<button type="button" class="btn btn-ghost" data-mat="5">Acid</button>' +
+            '<button type="button" class="btn btn-ghost" data-mat="0">Erase</button>' +
+          '</div>' +
+          '<div class="row-wrap">' +
+            '<button type="button" class="btn btn-ghost" id="sandSizeBtn">Brush: M</button>' +
+            '<button type="button" class="btn btn-ghost" id="sandPauseBtn">Pause</button>' +
+            '<button type="button" class="btn btn-ghost" id="sandDemoBtn">Demo Basin</button>' +
+            '<button type="button" class="btn btn-ghost" id="sandClearBtn">Clear</button>' +
+          '</div>' +
+        '</div>' +
+        '<canvas class="sand-canvas" id="sandCanvas" width="' + GW + '" height="' + GH + '" data-testid="sand-canvas"></canvas>' +
+        '<div class="muted-text" style="margin-top:8px;">Tip: Stone holds Water &amp; Sand; Fire boils Water; Acid dissolves Stone &amp; Sand.</div>';
+
+      var canvas = mount.querySelector('#sandCanvas');
+      var ctx = canvas.getContext('2d');
+      var imgData = ctx.createImageData(GW, GH);
+      var COLORS = {
+        0: [10, 10, 10],
+        1: [245, 210, 120],
+        2: [96, 175, 255],
+        3: [155, 155, 165],
+        4: [255, 110, 45],
+        5: [110, 245, 95]
+      };
+
+      function seedDemo() {
+        grid.fill(0);
+        // Stone basin
+        for (var x = 25; x <= 115; x++) {
+          grid[76 * GW + x] = 3;
+          grid[77 * GW + x] = 3;
+        }
+        for (var y = 52; y <= 76; y++) {
+          grid[y * GW + 25] = 3;
+          grid[y * GW + 115] = 3;
+        }
+        // Pile of sand & pool of water
+        for (var sy = 20; sy < 45; sy++) {
+          for (var sx = 45; sx < 65; sx++) grid[sy * GW + sx] = 1;
+          for (var wx = 75; wx < 95; wx++) grid[sy * GW + wx] = 2;
+        }
+      }
+
+      function paint(pos) {
+        if (!pos) return;
+        for (var dy = -brushRadius; dy <= brushRadius; dy++) {
+          for (var dx = -brushRadius; dx <= brushRadius; dx++) {
+            if (dx * dx + dy * dy > brushRadius * brushRadius) continue;
+            var gx = pos.x + dx;
+            var gy = pos.y + dy;
+            if (gx >= 0 && gx < GW && gy >= 0 && gy < GH) {
+              if (brush === 0 || grid[gy * GW + gx] === 0 || brush === 3) {
+                grid[gy * GW + gx] = brush;
+              }
+            }
+          }
+        }
+      }
+
+      function renderCanvas() {
+        var data = imgData.data;
+        for (var i = 0; i < grid.length; i++) {
+          var c = COLORS[grid[i]] || COLORS[0];
+          var p = i * 4;
+          data[p] = c[0];
+          data[p + 1] = c[1];
+          data[p + 2] = c[2];
+          data[p + 3] = 255;
+        }
+        ctx.putImageData(imgData, 0, 0);
+      }
+
+      function frame() {
+        if (drawing && pointerPos) paint(pointerPos);
+        if (!paused) {
+          tick++;
+          Core.stepSandGrid(grid, GW, GH, tick);
+        }
+        renderCanvas();
+        rafId = requestAnimationFrame(frame);
+      }
+
+      function getGridPos(e) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: Math.floor(((e.clientX - rect.left) / rect.width) * GW),
+          y: Math.floor(((e.clientY - rect.top) / rect.height) * GH)
+        };
+      }
+
+      canvas.addEventListener('pointerdown', function (e) {
+        drawing = true;
+        pointerPos = getGridPos(e);
+        if (canvas.setPointerCapture) { try { canvas.setPointerCapture(e.pointerId); } catch (err) {} }
+        paint(pointerPos);
+        SoundFX.click();
+      });
+      canvas.addEventListener('pointermove', function (e) { if (drawing) pointerPos = getGridPos(e); });
+      function onPointerUp() { drawing = false; pointerPos = null; }
+      window.addEventListener('pointerup', onPointerUp);
+
+      mount.querySelector('#sandTools').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-mat]');
+        if (!b) return;
+        brush = parseInt(b.dataset.mat, 10);
+        mount.querySelectorAll('#sandTools button').forEach(function (btn) {
+          btn.className = 'btn ' + (btn === b ? 'btn-primary' : 'btn-ghost');
+        });
+        SoundFX.click();
+      });
+
+      var sizeBtn = mount.querySelector('#sandSizeBtn');
+      sizeBtn.addEventListener('click', function () {
+        brushRadius = brushRadius === 2 ? 3 : (brushRadius === 3 ? 6 : 2);
+        sizeBtn.textContent = 'Brush: ' + (brushRadius === 2 ? 'S' : (brushRadius === 3 ? 'M' : 'L'));
+        SoundFX.click();
+      });
+
+      var pauseBtn = mount.querySelector('#sandPauseBtn');
+      pauseBtn.addEventListener('click', function () {
+        paused = !paused;
+        pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+        SoundFX.click();
+      });
+
+      mount.querySelector('#sandDemoBtn').addEventListener('click', function () {
+        seedDemo(); SoundFX.pop();
+      });
+
+      mount.querySelector('#sandClearBtn').addEventListener('click', function () {
+        grid.fill(0); SoundFX.click();
+      });
+
+      seedDemo();
+      rafId = requestAnimationFrame(frame);
+
+      return function cleanup() {
+        if (rafId) cancelAnimationFrame(rafId);
+        window.removeEventListener('pointerup', onPointerUp);
+      };
+    };
+
+    /* 12. MEMORY PATTERN & AIM TRAINER */
+    GAME_BUILDERS.memory = function (mount) {
+      var mode = 'aim'; // aim | simon
+      var aimBest = loadJSON('aze_aim_best', 0);
+      var simonBest = loadJSON('aze_simon_best', 0);
+
+      // Aim state
+      var aimRunning = false;
+      var aimHits = 0;
+      var aimMisses = 0;
+      var aimEnd = 0;
+      var aimRaf = null;
+      var aimReactionSum = 0;
+      var targetSpawnAt = 0;
+
+      // Simon state
+      var simonSeq = [];
+      var simonUserIdx = 0;
+      var simonLocked = true;
+      var simonTimers = [];
+      var PADS = [
+        { id: 0, label: 'Alpha', freq: 329.63, kind: 'prism' },
+        { id: 1, label: 'Beta', freq: 440.0, kind: 'star' },
+        { id: 2, label: 'Gamma', freq: 523.25, kind: 'bolt' },
+        { id: 3, label: 'Delta', freq: 659.25, kind: 'hole' }
+      ];
+
+      mount.innerHTML =
+        '<div class="space-between" style="margin-bottom:16px;">' +
+          '<div class="segmented" role="group" aria-label="Trainer Mode">' +
+            '<button type="button" id="tabAim" aria-pressed="true">Aim Trainer (30s)</button>' +
+            '<button type="button" id="tabSimon" aria-pressed="false">Memory Pattern</button>' +
+          '</div>' +
+          '<div class="tabular muted-text" id="memBestLine">Best Aim: ' + aimBest + ' · Best Pattern: R' + simonBest + '</div>' +
+        '</div>' +
+        '<div id="memBody"></div>';
+
+      var body = mount.querySelector('#memBody');
+      var tabAim = mount.querySelector('#tabAim');
+      var tabSimon = mount.querySelector('#tabSimon');
+      var bestLine = mount.querySelector('#memBestLine');
+
+      function clearAll() {
+        if (aimRaf) { cancelAnimationFrame(aimRaf); aimRaf = null; }
+        simonTimers.forEach(function (t) { clearTimeout(t); });
+        simonTimers = [];
+      }
+
+      function updateBestLine() {
+        bestLine.textContent = 'Best Aim: ' + aimBest + ' · Best Pattern: R' + simonBest;
+      }
+
+      function renderAim() {
+        body.innerHTML =
+          '<div class="space-between" style="margin-bottom:10px;">' +
+            '<div class="tabular" style="font-weight:800;" id="aimStats">Hits: 0 · Accuracy: 100% · Time: 30.0s</div>' +
+            '<button type="button" class="btn btn-primary" id="aimStartBtn">Start 30s Aim Run</button>' +
+          '</div>' +
+          '<div class="aim-arena" id="aimArena" data-testid="aim-arena">' +
+            '<div class="alchemy-board-hint" id="aimPrompt">Press "Start 30s Aim Run" and click targets as fast and accurately as possible.</div>' +
+          '</div>';
+
+        var arena = body.querySelector('#aimArena');
+        var statsEl = body.querySelector('#aimStats');
+        var startBtn = body.querySelector('#aimStartBtn');
+
+        function spawnTarget() {
+          arena.innerHTML = '';
+          var w = Math.max(120, arena.clientWidth - 70);
+          var h = Math.max(120, arena.clientHeight - 70);
+          var tx = 35 + Math.random() * w;
+          var ty = 35 + Math.random() * h;
+          var tBtn = document.createElement('button');
+          tBtn.type = 'button';
+          tBtn.className = 'aim-target';
+          tBtn.style.left = tx + 'px';
+          tBtn.style.top = ty + 'px';
+          tBtn.setAttribute('aria-label', 'Aim target');
+          tBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="currentColor"/></svg>';
+          targetSpawnAt = performance.now();
+          tBtn.addEventListener('pointerdown', function (e) {
+            e.stopPropagation();
+            if (!aimRunning) return;
+            aimHits++;
+            aimReactionSum += (performance.now() - targetSpawnAt);
+            SoundFX.pickup();
+            spawnTarget();
+          });
+          arena.appendChild(tBtn);
+        }
+
+        function tickAim() {
+          var rem = Math.max(0, (aimEnd - performance.now()) / 1000);
+          var total = aimHits + aimMisses;
+          var acc = total > 0 ? Math.round((aimHits / total) * 100) : 100;
+          statsEl.textContent = 'Hits: ' + aimHits + ' · Accuracy: ' + acc + '% · Time: ' + rem.toFixed(1) + 's';
+          if (rem > 0 && aimRunning) {
+            aimRaf = requestAnimationFrame(tickAim);
+          } else if (aimRunning) {
+            aimRunning = false;
+            var avgMs = aimHits > 0 ? Math.round(aimReactionSum / aimHits) : 0;
+            if (aimHits > aimBest) {
+              aimBest = aimHits;
+              saveJSON('aze_aim_best', aimBest);
+              updateBestLine();
+              SoundFX.chime();
+            } else {
+              SoundFX.pop();
+            }
+            arena.innerHTML = '<div class="alchemy-board-hint" style="pointer-events:auto;">Run Complete! ' + aimHits + ' Hits · ' + acc + '% Accuracy · Avg ' + avgMs + ' ms</div>';
+            startBtn.textContent = 'Play Again';
+          }
+        }
+
+        arena.addEventListener('pointerdown', function () {
+          if (!aimRunning) return;
+          aimMisses++;
+          SoundFX.buzz();
+        });
+
+        startBtn.addEventListener('click', function () {
+          clearAll();
+          aimRunning = true;
+          aimHits = 0; aimMisses = 0; aimReactionSum = 0;
+          aimEnd = performance.now() + 30000;
+          startBtn.textContent = 'Restart';
+          SoundFX.click();
+          spawnTarget();
+          aimRaf = requestAnimationFrame(tickAim);
+        });
+      }
+
+      function renderSimon() {
+        body.innerHTML =
+          '<div class="space-between">' +
+            '<div class="tabular" style="font-weight:800;" id="simRound">Round: 0 · Watch and repeat the sequence</div>' +
+            '<button type="button" class="btn btn-primary" id="simStartBtn">Start Sequence</button>' +
+          '</div>' +
+          '<div class="simon-grid" id="simGrid">' +
+            PADS.map(function (p) {
+              return '<button type="button" class="simon-pad" data-pad="' + p.id + '">' + getElementSvg(p.kind, 28) + '<span>' + p.label + '</span></button>';
+            }).join('') +
+          '</div>';
+
+        var roundEl = body.querySelector('#simRound');
+        var startBtn = body.querySelector('#simStartBtn');
+        var grid = body.querySelector('#simGrid');
+
+        function flashPad(id, dur) {
+          var el = grid.querySelector('[data-pad="' + id + '"]');
+          if (!el) return;
+          el.classList.add('lit');
+          SoundFX.tone(PADS[id].freq, (dur || 260) / 1000, 'triangle', 0.09);
+          var t = setTimeout(function () { if (el.isConnected) el.classList.remove('lit'); }, dur || 260);
+          simonTimers.push(t);
+        }
+
+        function playNextRound() {
+          simonLocked = true;
+          simonUserIdx = 0;
+          simonSeq.push(Math.floor(Math.random() * 4));
+          roundEl.textContent = 'Round ' + simonSeq.length + ' · Watch carefully...';
+          simonSeq.forEach(function (padId, i) {
+            var t = setTimeout(function () {
+              flashPad(padId, 300);
+              if (i === simonSeq.length - 1) {
+                var t2 = setTimeout(function () {
+                  simonLocked = false;
+                  if (roundEl.isConnected) roundEl.textContent = 'Round ' + simonSeq.length + ' · Your turn!';
+                }, 380);
+                simonTimers.push(t2);
+              }
+            }, 420 + i * 480);
+            simonTimers.push(t);
+          });
+        }
+
+        grid.addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-pad]');
+          if (!btn || simonLocked) return;
+          var id = parseInt(btn.dataset.pad, 10);
+          flashPad(id, 220);
+          if (id !== simonSeq[simonUserIdx]) {
+            simonLocked = true;
+            SoundFX.buzz();
+            roundEl.textContent = 'Mistake on Round ' + simonSeq.length + '! Press Start Sequence to retry.';
+            return;
+          }
+          simonUserIdx++;
+          if (simonUserIdx >= simonSeq.length) {
+            simonLocked = true;
+            if (simonSeq.length > simonBest) {
+              simonBest = simonSeq.length;
+              saveJSON('aze_simon_best', simonBest);
+              updateBestLine();
+            }
+            roundEl.textContent = 'Round ' + simonSeq.length + ' cleared!';
+            var t = setTimeout(playNextRound, 650);
+            simonTimers.push(t);
+          }
+        });
+
+        startBtn.addEventListener('click', function () {
+          clearAll();
+          simonSeq = [];
+          SoundFX.click();
+          playNextRound();
+        });
+      }
+
+      tabAim.addEventListener('click', function () {
+        clearAll(); aimRunning = false; mode = 'aim';
+        tabAim.setAttribute('aria-pressed', 'true');
+        tabSimon.setAttribute('aria-pressed', 'false');
+        SoundFX.click();
+        renderAim();
+      });
+
+      tabSimon.addEventListener('click', function () {
+        clearAll(); aimRunning = false; mode = 'simon';
+        tabAim.setAttribute('aria-pressed', 'false');
+        tabSimon.setAttribute('aria-pressed', 'true');
+        SoundFX.click();
+        renderSimon();
+      });
+
+      renderAim();
+      return function cleanup() { clearAll(); aimRunning = false; };
+    };
+
+    /* ---------------- WIRING HEADER & HUB EVENTS ---------------- */
+    document.getElementById('brandHomeBtn').addEventListener('click', function () { SoundFX.click(); showHub(); });
+    document.getElementById('backToHubBtn').addEventListener('click', function () { SoundFX.click(); showHub(); });
+    document.getElementById('headerRandomBtn').addEventListener('click', openRandomGame);
+    document.getElementById('heroRandomBtn').addEventListener('click', openRandomGame);
+    document.getElementById('nextRandomBtn').addEventListener('click', openRandomGame);
+
+    document.getElementById('continueLastBtn').addEventListener('click', function () {
+      var lastId = loadJSON('aze_last_game', '');
+      if (lastId) { SoundFX.click(); openGame(lastId); }
+    });
+
+    document.getElementById('themeToggleBtn').addEventListener('click', function () {
+      SoundFX.click();
+      applyTheme(!inverted);
+    });
+
+    document.getElementById('muteToggleBtn').addEventListener('click', function () {
+      SoundFX.setMuted(!SoundFX.isMuted());
+      syncMuteBtn();
+      if (!SoundFX.isMuted()) SoundFX.click();
+    });
+
+    document.getElementById('hubFilterBar').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-cat]');
+      if (!btn) return;
+      activeFilter = btn.dataset.cat;
+      document.querySelectorAll('#hubFilterBar button').forEach(function (b) {
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+      SoundFX.click();
+      renderHub();
+    });
+
+    document.getElementById('gameGrid').addEventListener('click', function (e) {
+      var card = e.target.closest('.game-card[data-game-id]');
+      if (!card) return;
+      SoundFX.click();
+      openGame(card.dataset.gameId);
+    });
+
+    /* ---------------- BOOTSTRAP ---------------- */
+    applyTheme(inverted);
+    syncMuteBtn();
+    renderHub();
+
+    var params = new URLSearchParams(window.location.search);
+    var directGame = params.get('game');
+    if (directGame) {
+      openGame(directGame, { autostart: params.get('autostart') === '1' });
+    }
+  })();
+  </script>
+</body>
+</html>

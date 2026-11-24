@@ -1,0 +1,6 @@
+{
+  "name": "AZE.fun",
+  "description": "Minimalist interactive web toys and 10 original mini-games in a single self-contained arcade hub.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
